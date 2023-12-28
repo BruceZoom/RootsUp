@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-using static EditController;
 
 public class EditController : MonoBehaviour
 {
@@ -15,15 +14,27 @@ public class EditController : MonoBehaviour
     [SerializeField]
     private Tile _tileToAdd;
 
+    [SerializeField]
+    private Bounds _worldBoundary;
+
     private Vector2 _currentPos;
     private Vector3Int _currentCellPos;
 
     public enum MouseStatus { Idle, Pressing };
     private MouseStatus _mouseStatus = MouseStatus.Idle;
 
+    private StructureData _structreData;
+
+    // FIXME: cannot correctly determine if it is a valid position
+    //private bool IsValidPosition => _worldBoundary.Contains(_currentPos);
+    private bool IsValidPosition => _worldBoundary.Contains(_currentCellPos);
+
+
     private void Awake()
     {
         _actions = new EditInputActions();
+
+        _structreData = new StructureData((int)_worldBoundary.max.x, (int)_worldBoundary.max.y);
     }
 
     private void OnEnable()
@@ -53,7 +64,11 @@ public class EditController : MonoBehaviour
     {
         _mouseStatus = MouseStatus.Pressing;
 
-        UpdateTileAtCell(_currentCellPos);
+        // only update when click a valid position
+        if (IsValidPosition)
+        {
+            UpdateTileAtCell(_currentCellPos);
+        }
     }
 
     private void HandleMouseRelease(InputAction.CallbackContext context)
@@ -84,20 +99,30 @@ public class EditController : MonoBehaviour
     {
         _currentCellPos = cellPos;
 
-        if (_mouseStatus == MouseStatus.Pressing)
+        // only update when mouse pressed and at valid position
+        if (_mouseStatus == MouseStatus.Pressing && IsValidPosition)
         {
             UpdateTileAtCell(cellPos);
         }
     }
 
+    /// <summary>
+    /// Add a new tile to given cell position.
+    /// Regardless of whether it is valid. Need to be checked by callers.
+    /// </summary>
     private void UpdateTileAtCell(Vector3Int cellPos)
     {
-        if (_tilemap.HasTile(cellPos))
+        //if (_tilemap.HasTile(cellPos))
+        if (_structreData.HasBlock(cellPos.x, cellPos.y))
         {
-            Debug.Log($"Already have a tile at {cellPos}");
+            //Debug.Log($"Already have a tile at {cellPos}");
             return;
         }
 
+        Debug.Log(cellPos);
+
         _tilemap.SetTile(cellPos, _tileToAdd);
+        _structreData.SetBlock(cellPos.x, cellPos.y);
+        Debug.Log($"Capacity: {_structreData.TotalCapacity}, Block: {_structreData.TotalHasBlock}, Containable: {_structreData.TotalContainable}");
     }
 }
