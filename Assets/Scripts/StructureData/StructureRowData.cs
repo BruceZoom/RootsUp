@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using System.Linq;
+using UnityEngine;
 
 public class StructureRowData
 {
@@ -40,11 +40,19 @@ public class StructureRowData
         // treat blocks as containable only for computation
         _containable[targetX] = 1;
         // assumes blocks placed will not be removed
-        for (int i = _leftBlockIdx[targetX]+1; i < targetX; i++)
+        if (_leftBlockIdx[targetX] >= 0)
+        {
+            _rightBlockIdx[_leftBlockIdx[targetX]] = targetX;
+        }
+        for (int i = _leftBlockIdx[targetX] + 1; i < targetX; i++)
         {
             _rightBlockIdx[i] = targetX;
         }
-        for(int i = _rightBlockIdx[targetX]-1; i > targetX; i--)
+        if (_rightBlockIdx[targetX] < _xLength)
+        {
+            _leftBlockIdx[_rightBlockIdx[targetX]] = targetX;
+        }
+        for (int i = _rightBlockIdx[targetX] - 1; i > targetX; i--)
         {
             _leftBlockIdx[i] = targetX;
         }
@@ -105,7 +113,7 @@ public class StructureRowData
         int curX;
         int lx, rx;
 
-        while(GetNextEmptySlice(beginX, endX, out lx, out rx))
+        while(GetEmptySlice(beginX, endX, out lx, out rx))
         {
             // set curx to left-most empty cell
             curX = lx;
@@ -114,6 +122,7 @@ public class StructureRowData
             // if this slice become continable
             if(TryUpdateContainableFill(curX, lastRow, out lx, out rx))
             {
+                Debug.Log($"Filled: [{lx}, {rx}]");
                 // update the left-most cell if it is the first slice
                 if (leftX == -1)
                 {
@@ -125,7 +134,7 @@ public class StructureRowData
         }
 
         // leftX is still -1 if no update
-        return leftX == -1;
+        return leftX != -1;
     }
 
     /// <summary>
@@ -134,7 +143,7 @@ public class StructureRowData
     /// <param name="leftX">The left most empty cell.</param>
     /// <param name="rightX">The right most empty cell.</param>
     /// <returns>Whether there are empty cells left.</returns>
-    internal bool GetNextEmptySlice(int beginX, int endX, out int leftX, out int rightX)
+    internal bool GetEmptySlice(int beginX, int endX, out int leftX, out int rightX)
     {
         int curX = beginX;
         // go to first empty cell
@@ -150,8 +159,9 @@ public class StructureRowData
         }
         else
         {
-            leftX = curX;
+            leftX = _leftBlockIdx[curX] + 1;
             rightX = _rightBlockIdx[curX] - 1;
+            Debug.Log($"An empty slice: [{leftX}, {rightX}]");
             return true;
         }
     }

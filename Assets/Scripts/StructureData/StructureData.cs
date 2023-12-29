@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEngine.UIElements;
+using UnityEngine;
 
 public class StructureData
 {
@@ -64,6 +63,7 @@ public class StructureData
             // extend one cell to left/right because water can flow diagonally
             leftX = lx - 1;
             rightX = rx + 1;
+            Debug.Log($"Next row to update: [{leftX}, {rightX}]");
             // go to next row
             y += 1;
         }

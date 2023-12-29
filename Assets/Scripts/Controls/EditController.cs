@@ -15,6 +15,8 @@ public class EditController : MonoBehaviour
     private Tile _tileToAdd;
 
     [SerializeField]
+    private BoxCollider2D _worldBoundaryCollider;
+
     private Bounds _worldBoundary;
 
     private Vector2 _currentPos;
@@ -25,15 +27,18 @@ public class EditController : MonoBehaviour
 
     private StructureData _structreData;
 
-    // FIXME: cannot correctly determine if it is a valid position
-    //private bool IsValidPosition => _worldBoundary.Contains(_currentPos);
-    private bool IsValidPosition => _worldBoundary.Contains(_currentCellPos);
+    private bool IsValidPosition => _worldBoundary.Contains(_currentPos)
+                                    && IsInScreen(Camera.main.WorldToViewportPoint(_currentPos));
+
+    private bool IsInScreen(Vector2 view) => view.x >= 0 && view.x <= 1 && view.y >= 0 && view.y <= 1;
 
 
     private void Awake()
     {
         _actions = new EditInputActions();
 
+        _worldBoundary = _worldBoundaryCollider.bounds;
+        _worldBoundaryCollider.enabled = false;
         _structreData = new StructureData((int)_worldBoundary.max.x, (int)_worldBoundary.max.y);
     }
 

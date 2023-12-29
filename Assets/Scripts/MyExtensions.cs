@@ -11,6 +11,5 @@ public static class MyExtensions
                 source[i] = value;
             }
         }
-
     }
 }
