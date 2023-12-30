@@ -32,6 +32,8 @@ public class EditController : MonoBehaviour
 
     private bool IsInScreen(Vector2 view) => view.x >= 0 && view.x <= 1 && view.y >= 0 && view.y <= 1;
 
+    private int _capacityOverEstimate = 0;
+
 
     private void Awake()
     {
@@ -49,6 +51,8 @@ public class EditController : MonoBehaviour
         _actions.Edit.MousePosition.performed += HandleMousePosition;
         _actions.Edit.MouseClick.performed += HandleMouseClick;
         _actions.Edit.MouseClick.canceled += HandleMouseRelease;
+
+        _actions.Edit.RightClick.performed += HandleRightClick;
     }
 
     private void OnDisable()
@@ -56,6 +60,8 @@ public class EditController : MonoBehaviour
         _actions.Edit.MousePosition.performed -= HandleMousePosition;
         _actions.Edit.MouseClick.performed -= HandleMouseClick;
         _actions.Edit.MouseClick.canceled -= HandleMouseRelease;
+
+        _actions.Edit.RightClick.performed -= HandleRightClick;
 
         _actions.Edit.Disable();
     }
@@ -111,6 +117,14 @@ public class EditController : MonoBehaviour
         }
     }
 
+    private void HandleRightClick(InputAction.CallbackContext context)
+    {
+        if (IsValidPosition)
+        {
+            Debug.Log(_structreData.DebugString(_currentCellPos.x, _currentCellPos.y));
+        }
+    }
+
     /// <summary>
     /// Add a new tile to given cell position.
     /// Regardless of whether it is valid. Need to be checked by callers.
@@ -124,10 +138,17 @@ public class EditController : MonoBehaviour
             return;
         }
 
-        Debug.Log(cellPos);
+        //Debug.Log(cellPos);
 
         _tilemap.SetTile(cellPos, _tileToAdd);
         _structreData.SetBlock(cellPos.x, cellPos.y);
-        Debug.Log($"Capacity: {_structreData.TotalCapacity}, Block: {_structreData.TotalHasBlock}, Containable: {_structreData.TotalContainable}");
+
+
+        var cap = _structreData.TotalCapacity;
+        if (_capacityOverEstimate != cap)
+        {
+            Debug.Log($"Capacity overestimate changed.\nCapacity: {cap}, Block: {_structreData.TotalHasBlock}, Containable: {_structreData.TotalContainable}");
+
+        }
     }
 }

@@ -44,6 +44,15 @@ public partial class @EditInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""RightClick"",
+                    ""type"": ""Button"",
+                    ""id"": ""7213893c-c41c-4fa8-af8e-8e15cfb5b99a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -68,6 +77,17 @@ public partial class @EditInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""MousePosition"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a7e9ab55-4e3d-4592-a574-151a4ab395e5"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RightClick"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -78,6 +98,7 @@ public partial class @EditInputActions: IInputActionCollection2, IDisposable
         m_Edit = asset.FindActionMap("Edit", throwIfNotFound: true);
         m_Edit_MouseClick = m_Edit.FindAction("MouseClick", throwIfNotFound: true);
         m_Edit_MousePosition = m_Edit.FindAction("MousePosition", throwIfNotFound: true);
+        m_Edit_RightClick = m_Edit.FindAction("RightClick", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -141,12 +162,14 @@ public partial class @EditInputActions: IInputActionCollection2, IDisposable
     private List<IEditActions> m_EditActionsCallbackInterfaces = new List<IEditActions>();
     private readonly InputAction m_Edit_MouseClick;
     private readonly InputAction m_Edit_MousePosition;
+    private readonly InputAction m_Edit_RightClick;
     public struct EditActions
     {
         private @EditInputActions m_Wrapper;
         public EditActions(@EditInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @MouseClick => m_Wrapper.m_Edit_MouseClick;
         public InputAction @MousePosition => m_Wrapper.m_Edit_MousePosition;
+        public InputAction @RightClick => m_Wrapper.m_Edit_RightClick;
         public InputActionMap Get() { return m_Wrapper.m_Edit; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -162,6 +185,9 @@ public partial class @EditInputActions: IInputActionCollection2, IDisposable
             @MousePosition.started += instance.OnMousePosition;
             @MousePosition.performed += instance.OnMousePosition;
             @MousePosition.canceled += instance.OnMousePosition;
+            @RightClick.started += instance.OnRightClick;
+            @RightClick.performed += instance.OnRightClick;
+            @RightClick.canceled += instance.OnRightClick;
         }
 
         private void UnregisterCallbacks(IEditActions instance)
@@ -172,6 +198,9 @@ public partial class @EditInputActions: IInputActionCollection2, IDisposable
             @MousePosition.started -= instance.OnMousePosition;
             @MousePosition.performed -= instance.OnMousePosition;
             @MousePosition.canceled -= instance.OnMousePosition;
+            @RightClick.started -= instance.OnRightClick;
+            @RightClick.performed -= instance.OnRightClick;
+            @RightClick.canceled -= instance.OnRightClick;
         }
 
         public void RemoveCallbacks(IEditActions instance)
@@ -193,5 +222,6 @@ public partial class @EditInputActions: IInputActionCollection2, IDisposable
     {
         void OnMouseClick(InputAction.CallbackContext context);
         void OnMousePosition(InputAction.CallbackContext context);
+        void OnRightClick(InputAction.CallbackContext context);
     }
 }

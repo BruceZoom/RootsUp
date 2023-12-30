@@ -19,6 +19,11 @@ public class StructureData
     public int TotalHasBlock => _rows.Sum(row => row.TotalHasBlock);
     public StructureRowData Row(int y) => _rows[y];
 
+    public string DebugString(int x, int y)
+    {
+        return $"({x}, {y}): " + _rows[y].DebugString(x);
+    }
+
     public StructureData(int xLength, int yLength)
     {
         _yLength = yLength;
@@ -48,6 +53,11 @@ public class StructureData
         {
             // split container
             var newContainers = _containerData[containerId].SplitContainerAt(targetX, targetY, _rows);
+
+            if (newContainers.Count > 1)
+            {
+                Debug.Log($"{newContainers.Count} new containers created");
+            }
 
             if (newContainers != null)
             {

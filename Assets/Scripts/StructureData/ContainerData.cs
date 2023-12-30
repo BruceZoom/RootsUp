@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 
 public class ContainerData
@@ -24,8 +25,10 @@ public class ContainerData
     public bool ContainsCell(int x, int y) => _containerRows[y].Any(i => i.x <= x && x <= i.y);
 
     public Vector2Int FindIntervalCover(int x, int y) => _containerRows[y].Find(i => i.x <= x && x <= i.y);
-    public List<Vector2Int> FindIntervalOverlap(int lx, int rx, int y) => _containerRows[y].FindAll(i =>
-        i.x <= lx && lx <= i.y || i.x <= rx && rx <= i.y).ToList();
+    public List<Vector2Int> FindIntervalOverlap(int lx, int rx, int y) =>
+        _containerRows[y].FindAll(i => i.x <= lx && lx <= i.y ||
+                                       i.x <= rx && rx <= i.y ||
+                                       lx <= i.x && i.y <= rx).ToList();
 
     public List<Vector2Int> ContainerRowAt(int y) => _containerRows[y];
     public int LeftLeakX(int y) => _leftLeakX[y];
@@ -92,7 +95,9 @@ public class ContainerData
         {
             while (_containerRows[y].Count > 0)
             {
+                //Debug.Log($"before: {_containerRows[y].Count}");
                 Vector2Int botSlice = _containerRows[y].Pop(0);
+                //Debug.Log(_containerRows[y].Count);
                 ContainerData newContainer =
                         new ContainerData(_xLength, _yLength, CellPosToContainerID(botSlice.x, y));
                 newContainer.AddInterval(y, botSlice.x, botSlice.y, y < _yLength ? rows[y] : null);
@@ -102,14 +107,35 @@ public class ContainerData
                 bfsQueue.Add(new Vector3Int(botSlice.x, y, botSlice.y));
                 while(bfsQueue.Count > 0)
                 {
+                    //remains -= 1;
                     var interval = bfsQueue.Pop(0);
-                    var slices = FindIntervalOverlap(interval.x, interval.z, interval.y);
-                    foreach (var slice in slices)
+                    //Debug.Log($"after pop queue: {bfsQueue.Count}");
+                    // search below
+                    if (0 < interval.y)
                     {
-                        _containerRows[interval.y].Remove(slice);
-                        newContainer.AddInterval(interval.y, slice.x, slice.y,
-                                                interval.y < _yLength ? rows[interval.y] : null);
-                        bfsQueue.Add(new Vector3Int(slice.x, interval.y, slice.y));
+                        var lastY = interval.y - 1;
+                        // extend in both direction because water flows diagonally
+                        var slices = FindIntervalOverlap(interval.x - 1, interval.z + 1, lastY);
+                        foreach (var slice in slices)
+                        {
+                            _containerRows[lastY].Remove(slice);
+                            newContainer.AddInterval(lastY, slice.x, slice.y, rows[lastY + 1]);
+                            bfsQueue.Add(new Vector3Int(slice.x, lastY, slice.y));
+                        }
+                    }
+                    // search above
+                    if (interval.y < _yLength - 1)
+                    {
+                        var nextY = interval.y + 1;
+                        // extend in both direction because water flows diagonally
+                        var slices = FindIntervalOverlap(interval.x - 1, interval.z + 1, nextY);
+                        foreach (var slice in slices)
+                        {
+                            _containerRows[nextY].Remove(slice);
+                            newContainer.AddInterval(nextY, slice.x, slice.y,
+                                                    nextY + 1 < _yLength ? rows[nextY + 1] : null);
+                            bfsQueue.Add(new Vector3Int(slice.x, nextY, slice.y));
+                        }
                     }
                 }
             }
@@ -126,7 +152,7 @@ public class ContainerData
             return this;
         }
 
-        for (int y = 0; y <= _containerRows.Count; y++)
+        for (int y = 0; y < _containerRows.Count; y++)
         {
             _containerRows[y].AddRange(other.ContainerRowAt(y));
             _leftLeakX[y] = _leftLeakX[y] < other.LeftLeakX(y) ? _leftLeakX[y] : other.LeftLeakX(y);

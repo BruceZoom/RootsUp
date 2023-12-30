@@ -45,7 +45,7 @@ public class StructureRowData
         return _containable.GetRange(leftX, rightX - leftX + 1).Sum();
     }
 
-    internal IEnumerable<int> GetContainers(int leftX, int rightX) => _containable.GetRange(leftX, rightX - leftX + 1).Distinct();
+    internal IEnumerable<int> GetContainers(int leftX, int rightX) => _containerId.GetRange(leftX, rightX - leftX + 1).Distinct();
 
     internal void SetContainerId(int lx, int rx, int id)
     {
@@ -81,6 +81,11 @@ public class StructureRowData
         }
     }
 
+    public string DebugString(int x)
+    {
+        return $"Has Block: {_hasBlock[x]},\n\t Containable: {_containable[x]}, Container: {_containerId[x]},\n\t Left Block: {_leftBlockIdx[x]}, Right Block: {_rightBlockIdx[x]}";
+    }
+
     /// <summary>
     /// Test if can update containability at a given cell.
     /// If can update, update every cell reachable from it.
@@ -113,6 +118,7 @@ public class StructureRowData
 
             // find all containers below
             var containers = lastRow.GetContainers(leftX - 1, rightX + 1);
+            //Debug.Log($"{leftX - 1},{rightX + 1}: {containers.Count()}");
             var numContainers = containers.Count();
             // if only one element (must be -1), then no container created before
             if (numContainers == 1)
@@ -160,9 +166,16 @@ public class StructureRowData
 
                     var other = containerData[otherId];
                     container.MergeContainer(other);
+                    // remove merged container
+                    containerData.Remove(otherId);
                     // set container id
                     other.OverwriteCellContainerId(_structure, containerId);
                 }
+
+                // join the new slice to the container
+                container.AddInterval(_y, leftX, rightX, nextRow);
+                //set container id
+                _containerId.SetRangeValues(leftX, rightX, containerId);
             }
 
             return true;
