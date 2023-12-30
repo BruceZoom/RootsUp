@@ -144,11 +144,12 @@ public class EditController : MonoBehaviour
         _structreData.SetBlock(cellPos.x, cellPos.y);
 
 
-        var cap = _structreData.TotalCapacity;
+        var cap = _structreData.CapacityOverEstimate;
         if (_capacityOverEstimate != cap)
         {
             Debug.Log($"Capacity overestimate changed.\nCapacity: {cap}, Block: {_structreData.TotalHasBlock}, Containable: {_structreData.TotalContainable}");
-
         }
+
+        Debug.Log($"True capacity: {_structreData.Capacity}");
     }
 }

@@ -14,9 +14,12 @@ public class StructureData
 
     public bool HasBlock(int x, int y) => _rows[y].HasBlock(x);
 
-    public int TotalCapacity => _rows.Sum(row => row.Capacity);
+    public int CapacityOverEstimate => _rows.Sum(row => row.Capacity);
     public int TotalContainable => _rows.Sum(row => row.TotalContainable);
     public int TotalHasBlock => _rows.Sum(row => row.TotalHasBlock);
+
+    public int Capacity => _containerData.Sum(kv => kv.Value.Capacity);
+
     public StructureRowData Row(int y) => _rows[y];
 
     public string DebugString(int x, int y)

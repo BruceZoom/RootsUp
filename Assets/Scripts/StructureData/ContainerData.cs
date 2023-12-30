@@ -34,7 +34,24 @@ public class ContainerData
     public int LeftLeakX(int y) => _leftLeakX[y];
     public int RightLeakX(int y) => _rightLeakX[y];
 
-    public IEnumerable<Vector3Int> AllIntervals()
+    public int GetLowestLeakY()
+    {
+        int leftY = _leftLeakX.FindIndex(x => x < _xLength);
+        int rightY = _rightLeakX.FindIndex(x => x >= 0);
+        return leftY != -1 ? (
+                    rightY != -1 ? Mathf.Min(leftY, rightY) : leftY
+                ) : (
+                    rightY != -1 ? rightY : _yLength
+                );
+    }
+
+    //public int Capacity => _containerRows.GetRange(0, LowestLeakY)
+    //                            .Sum(row => row.Sum(v => v.y - v.x + 1));
+
+    public int Capacity => _containerRows.GetRange(0, GetLowestLeakY())
+                                .Sum(row => row.Sum(v => v.y - v.x + 1));
+
+        public IEnumerable<Vector3Int> AllIntervals()
     {
         for (int y = 0; y < _yLength; y++)
         {
@@ -61,7 +78,7 @@ public class ContainerData
         // may introduce new leak on right
         if (nextRow == null || !nextRow.Containable(rx + 1))
         {
-            _rightLeakX[y + 1] = _rightLeakX[y] < rx + 1 ? _rightLeakX[y] : rx + 1;
+            _rightLeakX[y + 1] = rx + 1 < _rightLeakX[y] ? _rightLeakX[y] : rx + 1;
         }
         // may fix old leak if left wall covers left leak
         if (lx-1 <= _leftLeakX[y])

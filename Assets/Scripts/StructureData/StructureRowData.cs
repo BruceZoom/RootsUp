@@ -10,7 +10,7 @@ public class StructureRowData
     // y index of current row
     private int _y;
 
-    StructureData _structure;
+    private StructureData _structure;
 
     // 0: no block, 1: has block
     private List<int> _hasBlock;
