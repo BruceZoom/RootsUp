@@ -12,4 +12,11 @@ public static class MyExtensions
             }
         }
     }
+
+    public static T Pop<T>(this IList<T> source, int idx)
+    {
+        var ret = source[idx];
+        source.RemoveAt(idx);
+        return ret;
+    }
 }
