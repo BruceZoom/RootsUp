@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
+using VInspector;
 
 public class EditController : MonoBehaviour
 {
     private EditInputActions _actions;
 
+    [Header("Tile Settings")]
     [SerializeField]
     private Tilemap _tilemap;
 
@@ -35,6 +37,24 @@ public class EditController : MonoBehaviour
     private bool IsInScreen(Vector2 view) => view.x >= 0 && view.x <= 1 && view.y >= 0 && view.y <= 1;
 
     private int _capacityOverEstimate = 0;
+
+    [Header("Test")]
+    [SerializeField]
+    private float _amountToTest;
+
+    [Button("Test Add Water")]
+    private void TestAddWater()
+    {
+        float remain = _structreData.AddWater(_amountToTest);
+        Debug.Log($"Storage: {_structreData.StoredWater}, Remains: {remain}");
+    }
+
+    [Button("Test Get Water")]
+    private void TestGetWater()
+    {
+        bool success = _structreData.GetWater(_amountToTest);
+        Debug.Log($"Storage: {_structreData.StoredWater}. " + (success ? "Succeeded." : "Failed."));
+    }
 
 
     private void Awake()

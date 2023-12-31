@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class StructureData
 {
@@ -12,7 +11,9 @@ public class StructureData
 
     private List<StructureRowData> _rows;
 
-    Dictionary<int, ContainerData> _containerData;
+    private SortedDictionary<int, ContainerData> _containerData;
+
+    private int _currentContainerId = -1;
 
     public bool HasBlock(int x, int y) => _rows[y].HasBlock(x);
     public bool CanGrow(int x, int y) => 0 <= y && y < _yLength && 0 <= x && x < _xLength && (
@@ -31,9 +32,117 @@ public class StructureData
 
     public StructureRowData Row(int y) => _rows[y];
 
+    public float StoredWater => _containerData.Sum(kv => kv.Value.StoredWater);
+
+    public int CurrentContainerId
+    {
+        get
+        {
+            if (_currentContainerId == -1)
+            {
+                _currentContainerId = _containerData.Count > 0 ? _containerData.ElementAt(0).Key : -1;
+            }
+            return _currentContainerId;
+        }
+        set
+        {
+            _currentContainerId = value;
+        }
+    }
+
+    public int NextContainerId
+    {
+        get
+        {
+            var kvp = _containerData.FirstOrDefault(p => !p.Value.IsFull);
+            if (kvp.Equals(default(KeyValuePair<int, ContainerData>)))
+            {
+                return -1;
+            }
+            else
+            {
+                _currentContainerId = kvp.Key;
+                return _currentContainerId;
+            }
+        }
+    }
+
     public string DebugString(int x, int y)
     {
         return $"({x}, {y}): " + _rows[y].DebugString(x);
+    }
+
+    /// <summary>
+    /// Add specific amount of water to the structure.
+    /// Returns the amount exceeds total capacity.
+    /// </summary>
+    public float AddWater(float amount)
+    {
+        foreach (var container in _containerData.Values)
+        {
+            Debug.Log($"trying {container.ContainerID}");
+            if (container.AddWater(amount, out var remain) <= 0)
+            {
+                return 0;
+            }
+            else
+            {
+                amount = remain;
+                Debug.Log($"{container.ContainerID} is full");
+            }
+        }
+        return amount;
+
+        /*
+        // no container available yet
+        if (CurrentContainerId == -1)
+        {
+            return amount;
+        }
+        // loop until all water added
+        while (_containerData[CurrentContainerId].AddWater(amount, out var remain) <= 0)
+        {
+            var nextId = NextContainerId;
+            amount = remain;
+            // run out of container
+            if (nextId == -1)
+            {
+                return remain;
+            }
+            // otherwise switch to next container
+            CurrentContainerId = nextId;
+        }
+        return amount;
+        */
+    }
+
+    /// <summary>
+    /// Get and consumes specific amount of water.
+    /// If not enough water, consumes none and returns false.
+    /// </summary>
+    public bool GetWater(float amount)
+    {
+        if (amount > StoredWater)
+        {
+            return false;
+        }
+
+        foreach (var container in _containerData.Values.Reverse())
+        {
+            Debug.Log($"trying {container.ContainerID}");
+            if (container.GetWater(amount, out var remain) <= 0)
+            {
+                return true;
+            }
+            else
+            {
+                amount = remain;
+                Debug.Log($"{container.ContainerID} is empty");
+            }
+        }
+
+        Debug.LogError("Should not consume water if there is not enough water in the first place.");
+        return false;
     }
 
     public void SetBlock(int targetX, int targetY)
@@ -131,6 +240,6 @@ public class StructureData
             _rows.Add(new StructureRowData(xLength, yLength, y, this));
         }
 
-        _containerData = new Dictionary<int, ContainerData>();
+        _containerData = new SortedDictionary<int, ContainerData>();
     }
 }

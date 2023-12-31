@@ -5,6 +5,8 @@ using UnityEngine.UIElements;
 
 public class StructureRowData
 {
+    // MARK: do not consider max width limit
+    //       it causes merge bugs
     public static int ContainerMaxWidth = 4;
 
     private int _xLength;
@@ -95,7 +97,7 @@ public class StructureRowData
     /// <param name="leftX">The left most cell changed containability.</param>
     /// <param name="rightX">The right most cell changed containability.</param>
     /// <returns>Whether need to update next row.</returns>
-    internal bool TryUpdateContainableFill(int targetX, StructureRowData lastRow, StructureRowData nextRow, Dictionary<int, ContainerData> containerData, out int leftX, out int rightX)
+    internal bool TryUpdateContainableFill(int targetX, StructureRowData lastRow, StructureRowData nextRow, SortedDictionary<int, ContainerData> containerData, out int leftX, out int rightX)
     {
         // no change if already containable
         if (targetX <= 0 || targetX >= _xLength-1 || _containable[targetX] == 1)
@@ -112,7 +114,10 @@ public class StructureRowData
         // if every cell below is containable
         // and the size does not exceed max width
         // then this row becomes containable
-        if (numContainBelow >= numEmptyCell && numEmptyCell - 2 <= ContainerMaxWidth)
+        // MARK: do not consider max width limit
+        //       it causes merge bugs
+        //if (numContainBelow >= numEmptyCell && numEmptyCell - 2 <= ContainerMaxWidth)
+        if (numContainBelow >= numEmptyCell)
         {
             // exclude walls
             leftX = _leftBlockIdx[targetX] + 1;
@@ -198,7 +203,7 @@ public class StructureRowData
     /// <param name="leftX">The left most cell changed containability.</param>
     /// <param name="rightX">The right most cell changed containability.</param>
     /// <returns>Whether need to update next row.</returns>
-    internal bool TryUpdateContainableRange(int beginX, int endX, StructureRowData lastRow, StructureRowData nextRow, Dictionary<int, ContainerData> containerData, out int leftX, out int rightX)
+    internal bool TryUpdateContainableRange(int beginX, int endX, StructureRowData lastRow, StructureRowData nextRow, SortedDictionary<int, ContainerData> containerData, out int leftX, out int rightX)
     {
         beginX = beginX > 0 ? beginX : 0;
         endX = endX < _xLength ? endX : _xLength - 1;
