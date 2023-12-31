@@ -5,6 +5,8 @@ using UnityEngine.UIElements;
 
 public class StructureRowData
 {
+    public static int ContainerMaxWidth = 4;
+
     private int _xLength;
     private int _yLength;
     // y index of current row
@@ -108,8 +110,9 @@ public class StructureRowData
         //int numEmptyCell = _rightBlockIdx[targetX] - _leftBlockIdx[targetX] - 1;
         int numEmptyCell = _rightBlockIdx[targetX] - _leftBlockIdx[targetX] + 1;
         // if every cell below is containable
+        // and the size does not exceed max width
         // then this row becomes containable
-        if (numContainBelow >= numEmptyCell)
+        if (numContainBelow >= numEmptyCell && numEmptyCell - 2 <= ContainerMaxWidth)
         {
             // exclude walls
             leftX = _leftBlockIdx[targetX] + 1;
@@ -125,7 +128,7 @@ public class StructureRowData
             {
                 // create new container
                 int containerId = ContainerData.CellPosToContainerID(leftX, _y);
-                var container = new ContainerData(_xLength, _yLength, containerId);
+                var container = new ContainerData(_xLength, _yLength, containerId, _structure);
                 container.AddInterval(_y, leftX, rightX, nextRow);
                 containerData.Add(containerId, container);
                 // set container id

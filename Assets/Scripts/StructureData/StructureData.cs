@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class StructureData
 {
+    private int _xLength;
     private int _yLength;
 
     private List<StructureRowData> _rows;
@@ -13,6 +15,13 @@ public class StructureData
     Dictionary<int, ContainerData> _containerData;
 
     public bool HasBlock(int x, int y) => _rows[y].HasBlock(x);
+    public bool CanGrow(int x, int y) => 0 <= y && y < _yLength && 0 <= x && x < _xLength && (
+                                            // at least one adjacent block
+                                            (0 < y && _rows[y - 1].HasBlock(x)) ||
+                                            (y < _yLength - 1 && _rows[y + 1].HasBlock(x)) ||
+                                            (0 < x && _rows[y].HasBlock(x - 1)) ||
+                                            (x < _xLength - 1 && _rows[y].HasBlock(x + 1))
+                                        );
 
     public int CapacityOverEstimate => _rows.Sum(row => row.Capacity);
     public int TotalContainable => _rows.Sum(row => row.TotalContainable);
@@ -25,19 +34,6 @@ public class StructureData
     public string DebugString(int x, int y)
     {
         return $"({x}, {y}): " + _rows[y].DebugString(x);
-    }
-
-    public StructureData(int xLength, int yLength)
-    {
-        _yLength = yLength;
-
-        _rows = new List<StructureRowData>();
-        for(int y = 0; y < yLength; y++)
-        {
-            _rows.Add(new StructureRowData(xLength, yLength, y, this));
-        }
-
-        _containerData = new Dictionary<int, ContainerData>();
     }
 
     public void SetBlock(int targetX, int targetY)
@@ -122,5 +118,19 @@ public class StructureData
             // go to next row
             y += 1;
         }
+    }
+
+    public StructureData(int xLength, int yLength)
+    {
+        _xLength = xLength;
+        _yLength = yLength;
+
+        _rows = new List<StructureRowData>();
+        for (int y = 0; y < yLength; y++)
+        {
+            _rows.Add(new StructureRowData(xLength, yLength, y, this));
+        }
+
+        _containerData = new Dictionary<int, ContainerData>();
     }
 }

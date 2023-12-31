@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -16,6 +15,9 @@ public class EditController : MonoBehaviour
 
     [SerializeField]
     private BoxCollider2D _worldBoundaryCollider;
+
+    [SerializeField]
+    private List<Vector3Int> _initialBlocks;
 
     private Bounds _worldBoundary;
 
@@ -42,6 +44,14 @@ public class EditController : MonoBehaviour
         _worldBoundary = _worldBoundaryCollider.bounds;
         _worldBoundaryCollider.enabled = false;
         _structreData = new StructureData((int)_worldBoundary.max.x, (int)_worldBoundary.max.y);
+    }
+
+    private void Start()
+    {
+        foreach (var cellPos in _initialBlocks)
+        {
+            AddBlockAtCell(cellPos);
+        }
     }
 
     private void OnEnable()
@@ -76,9 +86,9 @@ public class EditController : MonoBehaviour
         _mouseStatus = MouseStatus.Pressing;
 
         // only update when click a valid position
-        if (IsValidPosition)
+        if (IsValidPosition && _structreData.CanGrow(_currentCellPos.x, _currentCellPos.y))
         {
-            UpdateTileAtCell(_currentCellPos);
+            AddBlockAtCell(_currentCellPos);
         }
     }
 
@@ -111,9 +121,10 @@ public class EditController : MonoBehaviour
         _currentCellPos = cellPos;
 
         // only update when mouse pressed and at valid position
-        if (_mouseStatus == MouseStatus.Pressing && IsValidPosition)
+        if (_mouseStatus == MouseStatus.Pressing && IsValidPosition 
+            && _structreData.CanGrow(_currentCellPos.x, _currentCellPos.y))
         {
-            UpdateTileAtCell(cellPos);
+            AddBlockAtCell(cellPos);
         }
     }
 
@@ -129,7 +140,7 @@ public class EditController : MonoBehaviour
     /// Add a new tile to given cell position.
     /// Regardless of whether it is valid. Need to be checked by callers.
     /// </summary>
-    private void UpdateTileAtCell(Vector3Int cellPos)
+    private void AddBlockAtCell(Vector3Int cellPos)
     {
         //if (_tilemap.HasTile(cellPos))
         if (_structreData.HasBlock(cellPos.x, cellPos.y))

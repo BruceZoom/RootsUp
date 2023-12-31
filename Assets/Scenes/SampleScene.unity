@@ -1205,6 +1205,13 @@ MonoBehaviour:
   _tilemap: {fileID: 297983345}
   _tileToAdd: {fileID: 11400000, guid: 43d4a7fb25f9c13459d912616bcc55d6, type: 2}
   _worldBoundaryCollider: {fileID: 1364008254}
+  _initialBlocks:
+  - {x: 30, y: 0, z: 0}
+  - {x: 31, y: 0, z: 0}
+  - {x: 32, y: 0, z: 0}
+  - {x: 33, y: 0, z: 0}
+  - {x: 30, y: 1, z: 0}
+  - {x: 33, y: 1, z: 0}
 --- !u!4 &870507097
 Transform:
   m_ObjectHideFlags: 0

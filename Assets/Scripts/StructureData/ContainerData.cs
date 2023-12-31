@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class ContainerData
 {
-    public static int CellPosToContainerID(int x, int y) => 1000 * x + y;
-    public static Vector2Int ContainerIDToCellPos(int id) => new Vector2Int(id / 1000, id % 1000);
+    public static int CellPosToContainerID(int x, int y) => 1000 * y + x;
+    public static Vector2Int ContainerIDToCellPos(int id) => new Vector2Int(id % 1000, id / 1000);
 
     // 1th-d: row index
     // 2nd-d: targetX: left-most empty cell, targetY: right-most empty cell
@@ -15,6 +15,7 @@ public class ContainerData
     private int _containerId;
     private int _xLength;
     private int _yLength;
+    private StructureData _structure;
 
     // 1th-d: row index (_yLength+1 row), data: left/right-most leak point
     private List<int> _leftLeakX;
@@ -116,7 +117,7 @@ public class ContainerData
                 Vector2Int botSlice = _containerRows[y].Pop(0);
                 //Debug.Log(_containerRows[y].Count);
                 ContainerData newContainer =
-                        new ContainerData(_xLength, _yLength, CellPosToContainerID(botSlice.x, y));
+                        new ContainerData(_xLength, _yLength, CellPosToContainerID(botSlice.x, y), _structure);
                 newContainer.AddInterval(y, botSlice.x, botSlice.y, y < _yLength ? rows[y] : null);
                 newContainers.Add(newContainer);
                 // use BFS to generate the new container
@@ -189,11 +190,12 @@ public class ContainerData
         }
     }
 
-    public ContainerData(int xLength, int yLength, int containerId)
+    public ContainerData(int xLength, int yLength, int containerId, StructureData structure)
     {
         _containerId = containerId;
         _xLength = xLength;
         _yLength = yLength;
+        _structure = structure;
         _containerRows = new List<List<Vector2Int>>();
         for (int y = 0; y < yLength; y++)
         {
