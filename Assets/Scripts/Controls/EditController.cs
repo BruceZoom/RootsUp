@@ -12,7 +12,7 @@ public class EditController : MonoBehaviour
     private Tilemap _tilemap;
 
     [SerializeField]
-    private Tile _tileToAdd;
+    private RuleTile _tileToAdd;
 
     [SerializeField]
     private BoxCollider2D _worldBoundaryCollider;
