@@ -23,6 +23,9 @@ public class StructureTileManager : MonoSingleton<StructureTileManager>
     private Tile _waterBodyTile;
 
     [SerializeField]
+    private int _waterSurfaceAnimFrames;
+
+    [SerializeField]
     private BoxCollider2D _worldBoundaryCollider;
 
     public Bounds WorldBoundary => _worldBoundaryCollider.bounds;
@@ -43,5 +46,30 @@ public class StructureTileManager : MonoSingleton<StructureTileManager>
     public void SetBlock(Vector3Int cellPos)
     {
         _structureTilemap.SetTile(cellPos, _structureTile);
+    }
+
+    public void SetWaterBody(Vector3Int interval)
+    {
+        for(int x = interval.x; x <= interval.z; x++)
+        {
+            _waterTilemap.SetTile(new Vector3Int(x, interval.y, 0), _waterBodyTile);
+        }
+    }
+
+    public void ClearWaterTile(Vector3Int interval)
+    {
+        for (int x = interval.x; x <= interval.z; x++)
+        {
+            _waterTilemap.SetTile(new Vector3Int(x, interval.y, 0), null);
+        }
+    }
+
+    public void SetWaterSurface(Vector3Int interval)
+    {
+        for (int x = interval.x; x <= interval.z; x++)
+        {
+            _waterTilemap.SetTile(new Vector3Int(x, interval.y, 0), _waterSurfaceTile);
+            _waterTilemap.SetAnimationFrame(new Vector3Int(x, interval.y, 0), x % _waterSurfaceAnimFrames);
+        }
     }
 }

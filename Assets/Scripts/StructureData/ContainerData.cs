@@ -22,6 +22,8 @@ public class ContainerData
             this.content = amount;
         }
 
+        public Vector3Int ToInterval(int y) => new Vector3Int(x, y, this.y);
+
         public float Volume => y - x + 1;
         public float AmountPerCell => content / Volume;
     }
@@ -42,6 +44,7 @@ public class ContainerData
     private List<int> _leftLeakX;
     private List<int> _rightLeakX;
 
+    private List<Vector3Int> _topRows;
     //private float _storedWater = 0;
 
     public int ContainerID => _containerId;
@@ -68,6 +71,8 @@ public class ContainerData
     public IEnumerable<ContainerRowData> ContainerRows => _containerRows.SelectMany(i => i);
 
     public float? ContentAt(int x, int y) => FindIntervalCover(x, y)?.AmountPerCell;
+
+    public List<Vector3Int> TopRows => _topRows;
 
     /*
     public float MaxCapCurrentFilledCell => _filledRows.Sum(r => r.Sum(v => v.y - v.x + 1));
@@ -96,18 +101,44 @@ public class ContainerData
     public float AddWater(float amount, out float remain)
     {
         remain = amount;
-        foreach (var row in ContainerRows)
-        {
-            remain = amount - (row.Volume - row.content);
-            remain = remain > 0 ? remain : 0;
-            row.content += amount - remain;
-            if (amount != remain)
-            {
-                // TODO: potential graphic updates
-            }
-            amount = remain;
+        // do nothing if it is already full
+        if (StoredWater >= Capacity) return remain;
 
-            if (remain <= 0) return 0;
+        for (int y = 0; y < GetLowestLeakY(); y++)
+        {
+            foreach (var row in _containerRows[y])
+            {
+                remain = amount - (row.Volume - row.content);
+                remain = remain > 0 ? remain : 0;
+                row.content += amount - remain;
+                // only when this row changes or it is not a top row
+                // will it become a candidate
+                if (amount != remain && !_topRows.Contains(row.ToInterval(y)))
+                {
+                    // add this row as a candidate
+                    _topRows.Add(row.ToInterval(y));
+                    if (y > 0)
+                    {
+                        foreach(var rowBelow in FindIntervalOverlap(row.x - 1, row.y + 1, y - 1))
+                        {
+                            // if was potentially a surface or empty only if it is a candidate
+                            if (_topRows.Remove(rowBelow.ToInterval(y - 1)))
+                            {
+                                StructureTileManager.Instance.SetWaterBody(rowBelow.ToInterval(y - 1));
+                            }
+                        }
+                    }
+                }
+                amount = remain;
+
+                if (remain <= 0) break;
+            }
+            if (remain <= 0) break;
+        }
+
+        foreach(var row in _topRows)
+        {
+            StructureTileManager.Instance.SetWaterSurface(row);
         }
 
         return remain;
@@ -193,6 +224,7 @@ public class ContainerData
     public void AddInterval(int y, ContainerRowData row, StructureRowData nextRow, bool byPass = false)
     {
         AddInterval(y, row.x, row.y, nextRow, byPass, row.content);
+        //newContainer.AddInterval(y, botSlice.x, botSlice.y, y < _yLength ? rows[y] : null);
     }
 
     /*
@@ -206,21 +238,32 @@ public class ContainerData
 
     public List<ContainerData> SplitContainerAt(int targetX, int targetY, List<StructureRowData> rows, out float spilledWater)
     {
-        ContainerRowData targetInterval = FindIntervalCover(targetX, targetY);
-        if (targetInterval == null)
+        // TODO: how to correctly split top rows?
+
+        ContainerRowData targetSlice = FindIntervalCover(targetX, targetY);
+        if (targetSlice == null)
         {
             Debug.LogWarning("Cannot split at a cell which is not a container.");
             spilledWater = 0;
             return null;
         }
 
-        _containerRows[targetY].Remove(targetInterval);
-        spilledWater = targetInterval.AmountPerCell;
+        // clear tile
+        StructureTileManager.Instance.ClearWaterTile(new Vector3Int(targetX, targetY, targetX));
+
+        _containerRows[targetY].Remove(targetSlice);
+        spilledWater = targetSlice.AmountPerCell;
         // it is already a container, filling it will not create new leak
         // therefore by pass check
         // fill with original content
-        AddInterval(targetY, targetInterval.x, targetX - 1, null, true, spilledWater * (targetX - targetInterval.x));
-        AddInterval(targetY, targetX + 1, targetInterval.y, null, true, spilledWater * (targetInterval.y - targetX));
+        AddInterval(targetY, targetSlice.x, targetX - 1, null, true, spilledWater * (targetX - targetSlice.x));
+        AddInterval(targetY, targetX + 1, targetSlice.y, null, true, spilledWater * (targetSlice.y - targetX));
+        Debug.Log(_containerRows.SelectMany(i => i).Count());
+        if (_topRows.Remove(targetSlice.ToInterval(targetY)))
+        {
+            _topRows.Add(new Vector3Int(targetSlice.x, targetY, targetX - 1));
+            _topRows.Add(new Vector3Int(targetX + 1, targetY, targetSlice.y));
+        }
 
         /*
         // split filled water
@@ -243,67 +286,67 @@ public class ContainerData
                 //Debug.Log(_containerRows[y].Count);
                 ContainerData newContainer =
                         new ContainerData(_xLength, _yLength, CellPosToContainerID(botSlice.x, y), _structure);
-                newContainer.AddInterval(y, botSlice, y < _yLength ? rows[y] : null);
-                //newContainer.AddInterval(y, botSlice.x, botSlice.y, y < _yLength ? rows[y] : null);
-                /*
-                // transfer filled slice
-                if (_filledRows[y].Contains(botSlice))
-                {
-                    newContainer.AddFilledInterval(y, botSlice.x, botSlice.y);
-                }
-                */
                 newContainers.Add(newContainer);
+                
                 // use BFS to generate the new container
-                List<Vector3Int> bfsQueue = new List<Vector3Int>();
-                bfsQueue.Add(new Vector3Int(botSlice.x, y, botSlice.y));
-                while(bfsQueue.Count > 0)
+                //List<Vector3Int> bfsQueue = new List<Vector3Int>();
+                List<Tuple<ContainerRowData, int>> bfsQueue = new List<Tuple<ContainerRowData, int>>();
+
+                // discover root node
+                //bfsQueue.Add(new Vector3Int(botSlice.x, y, botSlice.y));
+                bfsQueue.Add(new Tuple<ContainerRowData, int>(botSlice, y));
+                // remove from to-visit list
+                _containerRows[y].Remove(botSlice);
+
+                while (bfsQueue.Count > 0)
                 {
-                    //remains -= 1;
-                    var interval = bfsQueue.Pop(0);
-                    //Debug.Log($"after pop queue: {bfsQueue.Count}");
-                    // search below
-                    if (0 < interval.y)
+                    // visit a node
+                    var node = bfsQueue.Pop(0);
+                    var curSlice = node.Item1;
+                    var curY = node.Item2;
+                    // start process data
+                    // transfer interval
+                    newContainer.AddInterval(curY, curSlice, curY + 1 < _yLength ? rows[curY + 1] : null);
+                    // transfer top row
+                    var curInterval = curSlice.ToInterval(curY);
+                    if (_topRows.Contains(curInterval))
                     {
-                        var lastY = interval.y - 1;
+                        newContainer.TopRows.Add(curInterval);
+                        _topRows.Remove(curInterval);
+                    }
+
+                    // search below
+                    if (0 < curY)
+                    {
+                        var lastY = curY - 1;
                         // extend in both direction because water flows diagonally
-                        var slices = FindIntervalOverlap(interval.x - 1, interval.z + 1, lastY);
+                        var slices = FindIntervalOverlap(curSlice.x - 1, curSlice.y + 1, lastY);
                         foreach (var slice in slices)
                         {
+                            // discover node
+                            bfsQueue.Add(new Tuple<ContainerRowData, int>(slice, lastY));
+                            // remove from to-visit list
                             _containerRows[lastY].Remove(slice);
-                            newContainer.AddInterval(lastY, slice, rows[lastY + 1]);
-                            /*
-                            // transfer filled slice
-                            if (_filledRows[lastY].Contains(slice))
-                            {
-                                newContainer.AddFilledInterval(lastY, slice.x, slice.y);
-                            }
-                            bfsQueue.Add(new Vector3Int(slice.x, lastY, slice.y));
-                            */
                         }
                     }
                     // search above
-                    if (interval.y < _yLength - 1)
+                    if (curY < _yLength - 1)
                     {
-                        var nextY = interval.y + 1;
+                        var nextY = curY + 1;
                         // extend in both direction because water flows diagonally
-                        var slices = FindIntervalOverlap(interval.x - 1, interval.z + 1, nextY);
+                        var slices = FindIntervalOverlap(curSlice.x - 1, curSlice.y + 1, nextY);
                         foreach (var slice in slices)
                         {
+                            // discover node
+                            bfsQueue.Add(new Tuple<ContainerRowData, int>(slice, nextY));
+                            // remove from to-visit list
                             _containerRows[nextY].Remove(slice);
-                            newContainer.AddInterval(nextY, slice, nextY + 1 < _yLength ? rows[nextY + 1] : null);
-                            /*
-                            // transfer filled slice
-                            if (_filledRows[nextY].Contains(slice))
-                            {
-                                newContainer.AddFilledInterval(nextY, slice.x, slice.y);
-                            }
-                            bfsQueue.Add(new Vector3Int(slice.x, nextY, slice.y));
-                            */
                         }
                     }
                 }
             }
         }
+        Debug.Log($"remaining top row: {_topRows.Count}");
 
         return newContainers;
     }
@@ -328,6 +371,8 @@ public class ContainerData
         _rightLeakX[_yLength] = _rightLeakX[_yLength] > other.RightLeakX(_yLength) ? _rightLeakX[_yLength] : other.RightLeakX(_yLength);
         // merge stored water
         //_storedWater += other.StoredWater;
+
+        _topRows.AddRange(other.TopRows);
 
         return this;
     }
@@ -360,6 +405,7 @@ public class ContainerData
         _structure = structure;
         _containerRows = new List<List<ContainerRowData>>();
         //_filledRows = new List<List<Vector2Int>>();
+        _topRows = new List<Vector3Int>();
         for (int y = 0; y < yLength; y++)
         {
             _containerRows.Add(new List<ContainerRowData>());
@@ -375,5 +421,7 @@ public class ContainerData
     {
         _containerRows.Clear();
         //_filledRows.Clear();
+        _topRows.Clear();
+        Debug.Log($"clear {_containerId}");
     }
 }

@@ -1288,7 +1288,8 @@ MonoBehaviour:
   _structureTile: {fileID: 11400000, guid: 43d4a7fb25f9c13459d912616bcc55d6, type: 2}
   _waterTilemap: {fileID: 1380256796}
   _waterSurfaceTile: {fileID: 11400000, guid: b7be41151be1e7f44a3f00ddcc1e4916, type: 2}
-  _waterBodyTile: {fileID: 0}
+  _waterBodyTile: {fileID: 11400000, guid: 4691456a42d90e442a4458934789713e, type: 2}
+  _waterSurfaceAnimFrames: 5
   _worldBoundaryCollider: {fileID: 1364008254}
 --- !u!1 &1364008252
 GameObject:
