@@ -8,21 +8,6 @@ public class EditController : MonoBehaviour
 {
     private EditInputActions _actions;
 
-    [Header("Tile Settings")]
-    [SerializeField]
-    private Tilemap _tilemap;
-
-    [SerializeField]
-    private RuleTile _tileToAdd;
-
-    [SerializeField]
-    private BoxCollider2D _worldBoundaryCollider;
-
-    [SerializeField]
-    private List<Vector3Int> _initialBlocks;
-
-    private Bounds _worldBoundary;
-
     private Vector2 _currentPos;
     private Vector3Int _currentCellPos;
 
@@ -31,10 +16,8 @@ public class EditController : MonoBehaviour
 
     private StructureData _structreData;
 
-    private bool IsValidPosition => _worldBoundary.Contains(_currentPos)
-                                    && IsInScreen(Camera.main.WorldToViewportPoint(_currentPos));
-
-    private bool IsInScreen(Vector2 view) => view.x >= 0 && view.x <= 1 && view.y >= 0 && view.y <= 1;
+    [SerializeField]
+    private List<Vector3Int> _initialBlocks;
 
     private int _capacityOverEstimate = 0;
 
@@ -61,9 +44,8 @@ public class EditController : MonoBehaviour
     {
         _actions = new EditInputActions();
 
-        _worldBoundary = _worldBoundaryCollider.bounds;
-        _worldBoundaryCollider.enabled = false;
-        _structreData = new StructureData((int)_worldBoundary.max.x, (int)_worldBoundary.max.y);
+        Debug.Log(StructureTileManager.Instance.WorldBoundary.max);
+        _structreData = new StructureData((int)StructureTileManager.Instance.WorldBoundary.max.x, (int)StructureTileManager.Instance.WorldBoundary.max.y);
     }
 
     private void Start()
@@ -106,7 +88,8 @@ public class EditController : MonoBehaviour
         _mouseStatus = MouseStatus.Pressing;
 
         // only update when click a valid position
-        if (IsValidPosition && _structreData.CanGrow(_currentCellPos.x, _currentCellPos.y))
+        if (StructureTileManager.Instance.IsValidPosition(_currentPos) 
+            && _structreData.CanGrow(_currentCellPos.x, _currentCellPos.y))
         {
             AddBlockAtCell(_currentCellPos);
         }
@@ -125,7 +108,7 @@ public class EditController : MonoBehaviour
     {
         _currentPos = newPos;
 
-        var newCellPos = _tilemap.WorldToCell(_currentPos);
+        var newCellPos = StructureTileManager.Instance.WorldToCell(_currentPos);
         if (newCellPos != _currentCellPos)
         {
             EnterNewCell(newCellPos);
@@ -141,7 +124,8 @@ public class EditController : MonoBehaviour
         _currentCellPos = cellPos;
 
         // only update when mouse pressed and at valid position
-        if (_mouseStatus == MouseStatus.Pressing && IsValidPosition 
+        if (_mouseStatus == MouseStatus.Pressing
+            && StructureTileManager.Instance.IsValidPosition(_currentPos)
             && _structreData.CanGrow(_currentCellPos.x, _currentCellPos.y))
         {
             AddBlockAtCell(cellPos);
@@ -150,7 +134,7 @@ public class EditController : MonoBehaviour
 
     private void HandleRightClick(InputAction.CallbackContext context)
     {
-        if (IsValidPosition)
+        if (StructureTileManager.Instance.IsValidPosition(_currentPos))
         {
             Debug.Log(_structreData.DebugInfo(_currentCellPos.x, _currentCellPos.y));
         }
@@ -171,7 +155,7 @@ public class EditController : MonoBehaviour
 
         //Debug.Log(cellPos);
 
-        _tilemap.SetTile(cellPos, _tileToAdd);
+        //_tilemap.SetTile(cellPos, _tileToAdd);
         _structreData.SetBlock(cellPos.x, cellPos.y);
 
 

@@ -117,7 +117,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: water-animation_0
+      name: water_animated_0
       rect:
         serializedVersion: 2
         x: 0
@@ -129,16 +129,16 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 02305410000000000800000000000000
-      internalID: 21300000
+      spriteID: 9e572db3ec33f5046802fb0ecad90158
+      internalID: -356029399
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: water-animation_1
+      name: water_animated_1
       rect:
         serializedVersion: 2
         x: 0
@@ -150,16 +150,16 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 22305410000000000800000000000000
-      internalID: 21300002
+      spriteID: 494bce7fa286e9840bff2bd58dcc2a63
+      internalID: -354479114
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: water-animation_2
+      name: water_animated_2
       rect:
         serializedVersion: 2
         x: 0
@@ -171,16 +171,16 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 42305410000000000800000000000000
-      internalID: 21300004
+      spriteID: fd27b5fe3fbb0744283e9e4d81d392e6
+      internalID: 1600490402
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: water-animation_3
+      name: water_animated_3
       rect:
         serializedVersion: 2
         x: 0
@@ -192,10 +192,10 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 62305410000000000800000000000000
-      internalID: 21300006
+      spriteID: f0932b2da8be36045af6102c82d5f02f
+      internalID: 800464120
       vertices: []
       indices: 
       edges: []
@@ -203,7 +203,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 8ad5f23b61d9a9c4484d0e65dabc6f95
     internalID: 0
     vertices: []
     indices: 
@@ -211,10 +211,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      water-animation_0: 21300000
-      water-animation_1: 21300002
-      water-animation_2: 21300004
-      water-animation_3: 21300006
+      water_animated_0: -356029399
+      water_animated_1: -354479114
+      water_animated_2: 1600490402
+      water_animated_3: 800464120
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class StructureData
 {
@@ -165,6 +166,7 @@ public class StructureData
 
         // set block
         _rows[targetY].SetBlock(targetX);
+        StructureTileManager.Instance.SetBlock(new Vector3Int(targetX, targetY));
         // fix potential leak regarless of whether the block creates a container
         if (targetY > 0)
         {
