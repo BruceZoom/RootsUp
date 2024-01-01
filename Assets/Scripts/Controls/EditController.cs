@@ -52,7 +52,7 @@ public class EditController : MonoBehaviour
     [Button("Test Get Water")]
     private void TestGetWater()
     {
-        bool success = _structreData.GetWater(_amountToTest);
+        bool success = _structreData.TryGetWater(_amountToTest);
         Debug.Log($"Storage: {_structreData.StoredWater}. " + (success ? "Succeeded." : "Failed."));
     }
 
@@ -152,7 +152,7 @@ public class EditController : MonoBehaviour
     {
         if (IsValidPosition)
         {
-            Debug.Log(_structreData.DebugString(_currentCellPos.x, _currentCellPos.y));
+            Debug.Log(_structreData.DebugInfo(_currentCellPos.x, _currentCellPos.y));
         }
     }
 

@@ -29,7 +29,7 @@ public class StructureRowData
     private List<int> _containerId;
 
     internal bool HasBlock(int x) => _hasBlock[x] == 1;
-    internal int GetContainerID(int x) => _containerId[x];
+    internal int ContainerID(int x) => _containerId[x];
     internal bool Containable(int x) => _containable[x] == 1;
 
     internal int Capacity => _containable.Sum() - _hasBlock.Sum();
@@ -98,9 +98,9 @@ public class StructureRowData
         }
     }
 
-    public string DebugString(int x)
+    public string DebugInfo(int x)
     {
-        return $"Has Block: {_hasBlock[x]},\n\t Containable: {_containable[x]}, Container: {_containerId[x]},\n\t Left Block: {_leftBlockIdx[x]}, Right Block: {_rightBlockIdx[x]}";
+        return $"Has Block: {_hasBlock[x]}, Left Block: {_leftBlockIdx[x]}, Right Block: {_rightBlockIdx[x]}, Containable: {_containable[x]}, ContainerID: {_containerId[x]}";
     }
 
     /// <summary>

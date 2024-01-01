@@ -67,9 +67,20 @@ public class StructureData
         }
     }
 
-    public string DebugString(int x, int y)
+    public string DebugInfo(int x, int y)
     {
-        return $"({x}, {y}): " + _rows[y].DebugString(x);
+        var containerId = _rows[y].ContainerID(x);
+        float content = 0f;
+        if (_containerData.ContainsKey(containerId))
+        {
+            content = (_containerData[containerId].ContentAt(x, y) ?? 0f);
+        }
+        else if(containerId != -1)
+        {
+            Debug.LogError("The cell has an invalid container id.");
+        }
+
+        return $"Cell Info: Position: {(x, y)}, " + _rows[y].DebugInfo(x) + $" , Content: {content}";
     }
 
     /// <summary>
@@ -120,7 +131,7 @@ public class StructureData
     /// Get and consumes specific amount of water.
     /// If not enough water, consumes none and returns false.
     /// </summary>
-    public bool GetWater(float amount)
+    public bool TryGetWater(float amount)
     {
         if (amount > StoredWater)
         {
@@ -160,12 +171,12 @@ public class StructureData
             _rows[targetY-1].FixLeak(targetX, targetY, _containerData);
         }
 
-        int containerId = _rows[targetY].GetContainerID(targetX);
+        int containerId = _rows[targetY].ContainerID(targetX);
         // try to split the container if already a container
         if (containerId != -1)
         {
             // split container
-            var newContainers = _containerData[containerId].SplitContainerAt(targetX, targetY, _rows);
+            var newContainers = _containerData[containerId].SplitContainerAt(targetX, targetY, _rows, out var spilledWater);
 
             if (newContainers.Count > 1)
             {
@@ -186,6 +197,9 @@ public class StructureData
                     container.OverwriteCellContainerId(this, container.ContainerID);
                 }
             }
+
+            // add spilled water back to new containers
+            AddWater(spilledWater);
 
             // since it already is a container, filling it will not create new ones above it
             return;
