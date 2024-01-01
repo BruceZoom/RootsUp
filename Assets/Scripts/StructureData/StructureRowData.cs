@@ -136,12 +136,12 @@ public class StructureRowData
             rightX = _rightBlockIdx[targetX] - 1;
             _containable.SetRangeValues(leftX, rightX, 1);
 
-            // find all containers below
-            var containers = lastRow.GetContainers(leftX - 1, rightX + 1);
+            // find all containers (other than -1) below
+            var containers = lastRow.GetContainers(leftX - 1, rightX + 1).Where(c => c != -1);
             //Debug.Log($"{leftX - 1},{rightX + 1}: {containers.Count()}");
             var numContainers = containers.Count();
-            // if only one element (must be -1), then no container created before
-            if (numContainers == 1)
+            // if no container o, then no container created before
+            if (numContainers == 0)
             {
                 // create new container
                 int containerId = ContainerData.CellPosToContainerID(leftX, _y);
@@ -152,12 +152,12 @@ public class StructureRowData
                 _containerId.SetRangeValues(leftX, rightX, containerId);
             }
             // onyl one container
-            else if (numContainers == 2)
+            else if (numContainers == 1)
             {
                 // join the container
                 foreach (var containerId in containers)
                 {
-                    if (containerId == -1) continue;
+                    //if (containerId == -1) continue;
 
                     containerData[containerId].AddInterval(_y, leftX, rightX, nextRow);
                     //set container id
@@ -171,7 +171,7 @@ public class StructureRowData
                 ContainerData container = null;
                 foreach (var otherId in containers)
                 {
-                    if (otherId == -1) continue;
+                    //if (otherId == -1) continue;
                     if (containerId == -1)
                     {
                         containerId = otherId;

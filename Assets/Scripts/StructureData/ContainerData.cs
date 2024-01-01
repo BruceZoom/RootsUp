@@ -104,6 +104,7 @@ public class ContainerData
         // do nothing if it is already full
         if (StoredWater >= Capacity) return remain;
 
+        var origTopRows = _topRows.ToList();
         for (int y = 0; y < GetLowestLeakY(); y++)
         {
             foreach (var row in _containerRows[y])
@@ -138,6 +139,8 @@ public class ContainerData
 
         foreach(var row in _topRows)
         {
+            if (origTopRows.Contains(row)) continue;
+
             StructureTileManager.Instance.SetWaterSurface(row);
         }
 

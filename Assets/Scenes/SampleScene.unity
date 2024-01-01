@@ -1284,6 +1284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f69b28c41c4e6ac4dbf3a5d3fc830e12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _editController: {fileID: 870507096}
   _structureTilemap: {fileID: 297983345}
   _structureTile: {fileID: 11400000, guid: 43d4a7fb25f9c13459d912616bcc55d6, type: 2}
   _waterTilemap: {fileID: 1380256796}

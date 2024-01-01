@@ -39,10 +39,12 @@ public class EditController : MonoBehaviour
         Debug.Log($"Storage: {_structreData.StoredWater}. " + (success ? "Succeeded." : "Failed."));
     }
 
-
-    private void Awake()
+    public void Initialize()
     {
-        _actions = new EditInputActions();
+        if (_actions == null)
+        {
+            _actions = new EditInputActions();
+        }
 
         Debug.Log(StructureTileManager.Instance.WorldBoundary.max);
         _structreData = new StructureData((int)StructureTileManager.Instance.WorldBoundary.max.x, (int)StructureTileManager.Instance.WorldBoundary.max.y);
@@ -58,6 +60,11 @@ public class EditController : MonoBehaviour
 
     private void OnEnable()
     {
+        if (_actions == null)
+        {
+            _actions = new EditInputActions();
+        }
+
         _actions.Edit.Enable();
 
         _actions.Edit.MousePosition.performed += HandleMousePosition;
@@ -158,7 +165,7 @@ public class EditController : MonoBehaviour
         //_tilemap.SetTile(cellPos, _tileToAdd);
         _structreData.SetBlock(cellPos.x, cellPos.y);
 
-
+        // test code
         var cap = _structreData.CapacityOverEstimate;
         if (_capacityOverEstimate != cap)
         {

@@ -6,6 +6,9 @@ using UnityEngine.Tilemaps;
 
 public class StructureTileManager : MonoSingleton<StructureTileManager>
 {
+    [SerializeField]
+    private EditController _editController;
+
     [Header("Tile Settings")]
     [SerializeField]
     private Tilemap _structureTilemap;
@@ -41,6 +44,8 @@ public class StructureTileManager : MonoSingleton<StructureTileManager>
         // need to handle synchronization
         // design choice: always turn on collider but in collision free layer
         //_worldBoundaryCollider.enabled = false;
+
+        _editController.Initialize();
     }
 
     public void SetBlock(Vector3Int cellPos)
