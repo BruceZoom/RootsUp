@@ -277,6 +277,18 @@ public class ContainerData
         }
     }
 
+    internal void FixLeak(int x, int y)
+    {
+        if (_leftLeakX[y] == x)
+        {
+            _leftLeakX[y] = _xLength;
+        }
+        if (_rightLeakX[y] ==  x)
+        {
+            _rightLeakX[y] = -1;
+        }
+    }
+
     public ContainerData(int xLength, int yLength, int containerId, StructureData structure)
     {
         _containerId = containerId;

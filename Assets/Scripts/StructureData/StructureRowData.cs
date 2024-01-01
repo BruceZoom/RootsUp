@@ -5,8 +5,6 @@ using UnityEngine.UIElements;
 
 public class StructureRowData
 {
-    // MARK: do not consider max width limit
-    //       it causes merge bugs
     public static int ContainerMaxWidth = 4;
 
     private int _xLength;
@@ -85,6 +83,21 @@ public class StructureRowData
         }
     }
 
+    internal void FixLeak(int x, int y, SortedDictionary<int, ContainerData> containerData)
+    {
+        var leftX = x - 1;
+        var rightX = x + 1;
+        leftX = leftX >= 0 ? leftX : 0;
+        rightX = rightX < _xLength ? rightX : _xLength - 1;
+        foreach (int containerId in GetContainers(leftX, rightX))
+        {
+            if (containerId != -1)
+            {
+                containerData[containerId].FixLeak(x, y);
+            }
+        }
+    }
+
     public string DebugString(int x)
     {
         return $"Has Block: {_hasBlock[x]},\n\t Containable: {_containable[x]}, Container: {_containerId[x]},\n\t Left Block: {_leftBlockIdx[x]}, Right Block: {_rightBlockIdx[x]}";
@@ -114,10 +127,9 @@ public class StructureRowData
         // if every cell below is containable
         // and the size does not exceed max width
         // then this row becomes containable
-        // MARK: do not consider max width limit
-        //       it causes merge bugs
-        //if (numContainBelow >= numEmptyCell && numEmptyCell - 2 <= ContainerMaxWidth)
-        if (numContainBelow >= numEmptyCell)
+        // MARK: enabling size limit depends on fix potential leak when adding new blocks
+        if (numContainBelow >= numEmptyCell && numEmptyCell - 2 <= ContainerMaxWidth)
+        //if (numContainBelow >= numEmptyCell)
         {
             // exclude walls
             leftX = _leftBlockIdx[targetX] + 1;

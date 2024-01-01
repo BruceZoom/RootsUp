@@ -154,6 +154,11 @@ public class StructureData
 
         // set block
         _rows[targetY].SetBlock(targetX);
+        // fix potential leak regarless of whether the block creates a container
+        if (targetY > 0)
+        {
+            _rows[targetY-1].FixLeak(targetX, targetY, _containerData);
+        }
 
         int containerId = _rows[targetY].GetContainerID(targetX);
         // try to split the container if already a container
