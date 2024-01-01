@@ -152,18 +152,45 @@ public class ContainerData
     public float GetWater(float amount, out float remain)
     {
         remain = amount;
-        foreach (var row in ContainerRows.Reverse())
-        {
-            remain = amount - row.content;
-            remain = remain > 0 ? remain : 0;
-            row.content -= amount - remain;
-            if (amount != remain)
-            {
-                // TODO: potential graphic updates
-            }
-            amount = remain;
+        // do nothing if it is already empty
+        if (StoredWater <= 0) return remain;
 
-            if (remain <= 0) return 0;
+        var origTopRows = _topRows.ToList();
+        for (int y = GetLowestLeakY() - 1; y >= 0; y--)
+        {
+            foreach (var row in _containerRows[y])
+            {
+                remain = amount - row.content;
+                remain = remain > 0 ? remain : 0;
+                row.content -= amount - remain;
+                // only need to search further if the current row becomes empty
+                if (amount != remain && row.content == 0)
+                {
+                    // current row is no longer top row
+                    _topRows.Remove(row.ToInterval(y));
+                    StructureTileManager.Instance.ClearWaterTile(row.ToInterval(y));
+
+                    // find all possible top rows
+                    if (y > 0)
+                    {
+                        foreach (var rowBelow in FindIntervalOverlap(row.x - 1, row.y + 1, y - 1))
+                        {
+                            _topRows.Add(rowBelow.ToInterval(y - 1));
+                        }
+                    }
+                }
+                amount = remain;
+
+                if (remain <= 0) break;
+            }
+            if (remain <= 0) break;
+        }
+
+        foreach (var row in _topRows)
+        {
+            if (origTopRows.Contains(row)) continue;
+
+            StructureTileManager.Instance.SetWaterSurface(row);
         }
 
         return remain;
