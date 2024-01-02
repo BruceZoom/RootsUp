@@ -19,7 +19,11 @@ public class EditController : MonoBehaviour
     [SerializeField]
     private List<Vector3Int> _initialBlocks;
 
-    private int _capacityOverEstimate = 0;
+    [SerializeField]
+    private Tilemap _highlightTileMap;
+
+    [SerializeField]
+    private Tile _highlightTile;
 
     [Header("Test")]
     [SerializeField]
@@ -127,7 +131,14 @@ public class EditController : MonoBehaviour
     /// </summary>
     private void EnterNewCell(Vector3Int cellPos)
     {
+        _highlightTileMap.SetTile(_currentCellPos, null);
         _currentCellPos = cellPos;
+
+        // highlight current tile if valid
+        if (StructureTileManager.Instance.IsValidPosition(_currentPos))
+        {
+            _highlightTileMap.SetTile(_currentCellPos, _highlightTile);
+        }
 
         // only update when mouse pressed and at valid position
         if (_mouseStatus == MouseStatus.Pressing

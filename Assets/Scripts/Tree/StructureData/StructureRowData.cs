@@ -9,7 +9,7 @@ public class StructureRowData
 
     private int _xLength;
     private int _yLength;
-    // y index of current row
+    // rx index of current row
     private int _y;
 
     private StructureData _structure;

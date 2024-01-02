@@ -10,20 +10,20 @@ public class ContainerData
 
     public class ContainerRowData
     {
-        public int x;
-        public int y;
+        public int lx;
+        public int rx;
         public float content;
 
         public ContainerRowData(int lx, int rx, float amount=0)
         {
-            this.x = lx;
-            this.y = rx;
+            this.lx = lx;
+            this.rx = rx;
             this.content = amount;
         }
 
-        public Vector3Int ToInterval(int y) => new Vector3Int(x, y, this.y);
+        public Vector3Int ToInterval(int y) => new Vector3Int(lx, y, this.rx);
 
-        public float Volume => y - x + 1;
+        public float Volume => rx - lx + 1;
         public float AmountPerCell => content / Volume;
     }
 
@@ -48,23 +48,23 @@ public class ContainerData
 
     public int ContainerID => _containerId;
 
-    public bool ContainsCell(int x, int y) => _containerRows[y].Any(i => i.x <= x && x <= i.y);
+    public bool ContainsCell(int x, int y) => _containerRows[y].Any(i => i.lx <= x && x <= i.rx);
 
-    public ContainerRowData FindIntervalCover(int x, int y) => _containerRows[y].Find(i => i.x <= x && x <= i.y);
+    public ContainerRowData FindIntervalCover(int x, int y) => _containerRows[y].Find(i => i.lx <= x && x <= i.rx);
     public List<ContainerRowData> FindIntervalOverlap(int lx, int rx, int y) =>
-        _containerRows[y].FindAll(i => i.x <= lx && lx <= i.y ||
-                                       i.x <= rx && rx <= i.y ||
-                                       lx <= i.x && i.y <= rx).ToList();
+        _containerRows[y].FindAll(i => i.lx <= lx && lx <= i.rx ||
+                                       i.lx <= rx && rx <= i.rx ||
+                                       lx <= i.lx && i.rx <= rx).ToList();
 
     public List<ContainerRowData> ContainerRowAt(int y) => _containerRows[y];
     public int LeftLeakX(int y) => _leftLeakX[y];
     public int RightLeakX(int y) => _rightLeakX[y];
-    //public List<Vector2Int> FilledRowAt(int y) => _filledRows[y];
+    //public List<Vector2Int> FilledRowAt(int rx) => _filledRows[rx];
 
     //public float StoredWater => _storedWater;
     public float StoredWater => _containerRows.Sum(row => row.Sum(v => v.content));
     public int Capacity => _containerRows.GetRange(0, GetLowestLeakY())
-                                .Sum(row => row.Sum(v => v.y - v.x + 1));
+                                .Sum(row => row.Sum(v => v.rx - v.lx + 1));
     public bool IsFull => StoredWater >= Capacity;
 
     public IEnumerable<ContainerRowData> ContainerRows => _containerRows.SelectMany(i => i);
@@ -73,24 +73,26 @@ public class ContainerData
 
     public List<Vector3Int> TopRows => _topRows;
 
+    bool _race = false;
+
     /*
-    public float MaxCapCurrentFilledCell => _filledRows.Sum(r => r.Sum(v => v.y - v.x + 1));
+    public float MaxCapCurrentFilledCell => _filledRows.Sum(r => r.Sum(v => v.rx - v.lx + 1));
     public int CurrentConsumingRowY => Mathf.Max(_filledRows.FindLastIndex(r => r.Count > 0), 0);
     public int CurrentFillingRowY
     {
         get
         {
-            for (int y = 0; y < _yLength; y++)
+            for (int rx = 0; rx < _yLength; rx++)
             {
-                if (_filledRows[y].Count != _containerRows[y].Count)
+                if (_filledRows[rx].Count != _containerRows[rx].Count)
                 {
-                    return y == 0 ? y : y - 1;
+                    return rx == 0 ? rx : rx - 1;
                 }
             }
             return _yLength - 1;
         }
     }
-    public float MaxCapFilledRowAt(int y) => _filledRows[y].Sum(v => v.y - v.x + 1);
+    public float MaxCapFilledRowAt(int rx) => _filledRows[rx].Sum(v => v.rx - v.lx + 1);
     */
 
     /// <summary>
@@ -110,8 +112,16 @@ public class ContainerData
             {
                 remain = amount - (row.Volume - row.content);
                 remain = remain > 0 ? remain : 0;
-                row.content += amount - remain;
-                // only when this row changes or it is not a top row
+                if (remain > 0)
+                {
+                    row.content = row.Volume;
+                }
+                else
+                {
+                    row.content += amount;
+                }
+                //row.content += amount - remain;
+                // only when this row changes and it is not a top row
                 // will it become a candidate
                 if (amount != remain && !_topRows.Contains(row.ToInterval(y)))
                 {
@@ -119,13 +129,13 @@ public class ContainerData
                     _topRows.Add(row.ToInterval(y));
                     if (y > 0)
                     {
-                        foreach(var rowBelow in FindIntervalOverlap(row.x - 1, row.y + 1, y - 1))
+                        foreach(var rowBelow in FindIntervalOverlap(row.lx - 1, row.rx + 1, y - 1))
                         {
                             // if was potentially a surface or empty only if it is a candidate
                             if (_topRows.Remove(rowBelow.ToInterval(y - 1)))
                             {
                                 StructureTileManager.Instance.SetWaterBody(rowBelow.ToInterval(y - 1));
-                                //Debug.Log($"{rowBelow.ToInterval(y - 1)} set to water body");
+                                //Debug.Log($"{rowBelow.ToInterval(rx - 1)} set to water body");
                             }
                         }
                     }
@@ -139,7 +149,7 @@ public class ContainerData
 
         foreach(var row in _topRows)
         {
-            if (origTopRows.Contains(row)) continue;
+            //if (origTopRows.Contains(row)) continue;
 
             StructureTileManager.Instance.SetWaterSurface(row);
         }
@@ -165,7 +175,15 @@ public class ContainerData
             {
                 remain = amount - row.content;
                 remain = remain > 0 ? remain : 0;
-                row.content -= amount - remain;
+                if (remain > 0)
+                {
+                    row.content = 0;
+                }
+                else
+                {
+                    row.content -= amount;
+                }
+                //row.content -= amount - remain;
                 // only need to search further if the current row becomes empty or it is an empty top row
                 if ((amount != remain || _topRows.Contains(row.ToInterval(y))) && row.content <= 0)
                 {
@@ -176,7 +194,7 @@ public class ContainerData
                     // find all possible top rows
                     if (y > 0)
                     {
-                        foreach (var rowBelow in FindIntervalOverlap(row.x - 1, row.y + 1, y - 1))
+                        foreach (var rowBelow in FindIntervalOverlap(row.lx - 1, row.rx + 1, y - 1))
                         {
                             _topRows.Add(rowBelow.ToInterval(y - 1));
                         }
@@ -191,10 +209,11 @@ public class ContainerData
 
         foreach (var row in _topRows)
         {
-            if (origTopRows.Contains(row)) continue;
+            //if (origTopRows.Contains(row)) continue;
 
             StructureTileManager.Instance.SetWaterSurface(row);
         }
+
 
         return remain;
     }
@@ -216,7 +235,7 @@ public class ContainerData
         {
             foreach(var i in _containerRows[y])
             {
-                yield return new Vector3Int(i.x, y, i.y);
+                yield return new Vector3Int(i.lx, y, i.rx);
             }
         }
     }
@@ -253,16 +272,16 @@ public class ContainerData
 
     public void AddInterval(int y, ContainerRowData row, StructureRowData nextRow, bool byPass = false)
     {
-        AddInterval(y, row.x, row.y, nextRow, byPass, row.content);
-        //newContainer.AddInterval(y, botSlice.x, botSlice.y, y < _yLength ? rows[y] : null);
+        AddInterval(y, row.lx, row.rx, nextRow, byPass, row.content);
+        //newContainer.AddInterval(rx, botSlice.lx, botSlice.rx, rx < _yLength ? rows[rx] : null);
     }
 
     /*
-    public void AddFilledInterval(int y, int lx, int rx)
+    public void AddFilledInterval(int rx, int lx, int rx)
     {
         if (lx > rx) return;
 
-        _filledRows[y].Add(new Vector2Int(lx, rx));
+        _filledRows[rx].Add(new Vector2Int(lx, rx));
     }
     */
 
@@ -286,13 +305,13 @@ public class ContainerData
         // it is already a container, filling it will not create new leak
         // therefore by pass check
         // fill with original content
-        AddInterval(targetY, targetSlice.x, targetX - 1, null, true, spilledWater * (targetX - targetSlice.x));
-        AddInterval(targetY, targetX + 1, targetSlice.y, null, true, spilledWater * (targetSlice.y - targetX));
+        AddInterval(targetY, targetSlice.lx, targetX - 1, null, true, spilledWater * (targetX - targetSlice.lx));
+        AddInterval(targetY, targetX + 1, targetSlice.rx, null, true, spilledWater * (targetSlice.rx - targetX));
         Debug.Log(_containerRows.SelectMany(i => i).Count());
         if (_topRows.Remove(targetSlice.ToInterval(targetY)))
         {
-            _topRows.Add(new Vector3Int(targetSlice.x, targetY, targetX - 1));
-            _topRows.Add(new Vector3Int(targetX + 1, targetY, targetSlice.y));
+            _topRows.Add(new Vector3Int(targetSlice.lx, targetY, targetX - 1));
+            _topRows.Add(new Vector3Int(targetX + 1, targetY, targetSlice.rx));
         }
 
         /*
@@ -301,8 +320,8 @@ public class ContainerData
         if (_filledRows[targetY].Contains(targetInterval))
         {
             _filledRows[targetY].Remove(targetInterval);
-            AddFilledInterval(targetY, targetInterval.x, targetX - 1);
-            AddFilledInterval(targetY, targetX + 1, targetInterval.y);
+            AddFilledInterval(targetY, targetInterval.lx, targetX - 1);
+            AddFilledInterval(targetY, targetX + 1, targetInterval.rx);
         }
         */
 
@@ -311,11 +330,11 @@ public class ContainerData
         {
             while (_containerRows[y].Count > 0)
             {
-                //Debug.Log($"before: {_containerRows[y].Count}");
+                //Debug.Log($"before: {_containerRows[rx].Count}");
                 ContainerRowData botSlice = _containerRows[y].Pop(0);
-                //Debug.Log(_containerRows[y].Count);
+                //Debug.Log(_containerRows[rx].Count);
                 ContainerData newContainer =
-                        new ContainerData(_xLength, _yLength, CellPosToContainerID(botSlice.x, y), _structure);
+                        new ContainerData(_xLength, _yLength, CellPosToContainerID(botSlice.lx, y), _structure);
                 newContainers.Add(newContainer);
                 
                 // use BFS to generate the new container
@@ -323,7 +342,7 @@ public class ContainerData
                 List<Tuple<ContainerRowData, int>> bfsQueue = new List<Tuple<ContainerRowData, int>>();
 
                 // discover root node
-                //bfsQueue.Add(new Vector3Int(botSlice.x, y, botSlice.y));
+                //bfsQueue.Add(new Vector3Int(botSlice.lx, rx, botSlice.rx));
                 bfsQueue.Add(new Tuple<ContainerRowData, int>(botSlice, y));
                 // remove from to-visit list
                 _containerRows[y].Remove(botSlice);
@@ -350,7 +369,7 @@ public class ContainerData
                     {
                         var lastY = curY - 1;
                         // extend in both direction because water flows diagonally
-                        var slices = FindIntervalOverlap(curSlice.x - 1, curSlice.y + 1, lastY);
+                        var slices = FindIntervalOverlap(curSlice.lx - 1, curSlice.rx + 1, lastY);
                         foreach (var slice in slices)
                         {
                             // discover node
@@ -364,7 +383,7 @@ public class ContainerData
                     {
                         var nextY = curY + 1;
                         // extend in both direction because water flows diagonally
-                        var slices = FindIntervalOverlap(curSlice.x - 1, curSlice.y + 1, nextY);
+                        var slices = FindIntervalOverlap(curSlice.lx - 1, curSlice.rx + 1, nextY);
                         foreach (var slice in slices)
                         {
                             // discover node
@@ -393,7 +412,7 @@ public class ContainerData
         {
             _containerRows[y].AddRange(other.ContainerRowAt(y));
             // merge filled tiles
-            //_filledRows[y].AddRange(FilledRowAt(y));
+            //_filledRows[rx].AddRange(FilledRowAt(rx));
             _leftLeakX[y] = _leftLeakX[y] < other.LeftLeakX(y) ? _leftLeakX[y] : other.LeftLeakX(y);
             _rightLeakX[y] = _rightLeakX[y] > other.RightLeakX(y) ? _rightLeakX[y] : other.RightLeakX(y);
         }

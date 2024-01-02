@@ -74,7 +74,8 @@ public class SimulationManager : PassiveSingleton<SimulationManager>
         var blocks = _treeData.BlocksInRange(_initialRainRange.x, _initialRainRange.z, _initialRainRange.y);
 
         float rainToAdd = ((float)blocks * _branchDepositRate + (float)(containable - blocks) * _containerDepositRate) * _simInterval;
-        
+        rainToAdd = (float)decimal.Round((decimal)rainToAdd, 1);
+
         bool updateWater = _treeData.DepositRain(rainToAdd, _mineralRate);
 
         if (updateWater)
