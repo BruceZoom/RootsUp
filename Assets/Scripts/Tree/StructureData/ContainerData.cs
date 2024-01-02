@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 
 public class ContainerData
@@ -126,6 +125,7 @@ public class ContainerData
                             if (_topRows.Remove(rowBelow.ToInterval(y - 1)))
                             {
                                 StructureTileManager.Instance.SetWaterBody(rowBelow.ToInterval(y - 1));
+                                //Debug.Log($"{rowBelow.ToInterval(y - 1)} set to water body");
                             }
                         }
                     }
@@ -166,8 +166,8 @@ public class ContainerData
                 remain = amount - row.content;
                 remain = remain > 0 ? remain : 0;
                 row.content -= amount - remain;
-                // only need to search further if the current row becomes empty
-                if (amount != remain && row.content == 0)
+                // only need to search further if the current row becomes empty or it is an empty top row
+                if ((amount != remain || _topRows.Contains(row.ToInterval(y))) && row.content <= 0)
                 {
                     // current row is no longer top row
                     _topRows.Remove(row.ToInterval(y));

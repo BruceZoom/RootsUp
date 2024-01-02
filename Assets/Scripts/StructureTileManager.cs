@@ -36,6 +36,9 @@ public class StructureTileManager : PassiveSingleton<StructureTileManager>
 
     public Vector3Int WorldToCell(Vector2 pos) => _structureTilemap.WorldToCell(pos);
 
+    public Vector3 GetCellCostPos(Vector3Int cellPos) =>
+        Camera.main.WorldToScreenPoint(_structureTilemap.GetCellCenterWorld(cellPos));
+
     public override void Initialize()
     {
         base.Initialize();
@@ -65,6 +68,7 @@ public class StructureTileManager : PassiveSingleton<StructureTileManager>
         for (int x = interval.x; x <= interval.z; x++)
         {
             _waterTilemap.SetTile(new Vector3Int(x, interval.y, 0), null);
+            Debug.Log($"Clear at: {new Vector3Int(x, interval.y, 0)}");
         }
     }
 

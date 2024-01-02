@@ -136,6 +136,21 @@ public class EditController : MonoBehaviour
         {
             AddBlockAtCell(cellPos);
         }
+        
+        // display cost for valid empty cell
+        if (StructureTileManager.Instance.IsValidPosition(_currentPos)
+            && !_structure.HasBlock(cellPos.x, cellPos.y))
+        {
+            float waterCost, mineralCost;
+            SimulationManager.Instance.GetResourceCostAt(cellPos.x, cellPos.y, out waterCost, out mineralCost);
+            Vector3 costPanelPos = StructureTileManager.Instance.GetCellCostPos(cellPos);
+            GameplayUIManager.Instance.CostUI.DisplayCost(costPanelPos, waterCost, mineralCost);
+        }
+        // otherwise, hide cost panel
+        else
+        {
+            GameplayUIManager.Instance.CostUI.HideCost();
+        }
     }
 
     private void HandleRightClick(InputAction.CallbackContext context)
@@ -146,7 +161,7 @@ public class EditController : MonoBehaviour
 
             float waterCost, mineralCost;
             SimulationManager.Instance.GetResourceCostAt(_currentCellPos.x, _currentCellPos.y, out waterCost, out mineralCost);
-            Debug.Log($"Water Cost: {waterCost}, Mineral Cost: {mineralCost}");
+            //Debug.Log($"Water Cost: {waterCost}, Mineral Cost: {mineralCost}");
         }
     }
 
@@ -158,7 +173,7 @@ public class EditController : MonoBehaviour
     {
         //if (_tilemap.HasTile(cellPos))
         if (_structure.HasBlock(cellPos.x, cellPos.y)
-            || (!byPass && !SimulationManager.Instance.TryConsumeResourceAt(cellPos.x, cellPos.y)))
+            || (!byPass && !SimulationManager.Instance.CanConsumeResourceAt(cellPos.x, cellPos.y)))
         {
             //Debug.Log($"Already have a tile at {cellPos}");
             return;
@@ -166,10 +181,13 @@ public class EditController : MonoBehaviour
 
         //Debug.Log(cellPos);
 
+        SimulationManager.Instance.ConsumeResourceAt(cellPos.x, cellPos.y);
+
         //_tilemap.SetTile(cellPos, _tileToAdd);
         _structure.SetBlock(cellPos.x, cellPos.y);
 
         GameplayUIManager.Instance.DepositUI.SetWaterDeposit(_structure.StoredWater, _structure.Capacity);
+        GameplayUIManager.Instance.CostUI.HideCost();
 
         /*
         // test code

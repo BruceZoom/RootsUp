@@ -88,17 +88,22 @@ public class SimulationManager : PassiveSingleton<SimulationManager>
     {
         float mDist = Mathf.Abs(_overWorldCenter.x - x) + Mathf.Abs(_overWorldCenter.y - y);
 
-        Debug.Log(mDist);
         waterCost = Mathf.Ceil(mDist * _waterCostMultiplier);
-        mineralCost = Mathf.Ceil(Mathf.Max((mDist - _mineralCostStartDist), 0) * _mineralCostMultiplier);
-        mineralCost = mineralCost * mineralCost * _mineralCostMultiplier;
+        mineralCost = Mathf.Max((mDist - _mineralCostStartDist), 0);
+        mineralCost = Mathf.Ceil(mineralCost * mineralCost * _mineralCostMultiplier);
     }
 
-    public bool TryConsumeResourceAt(int x, int y)
+    public bool CanConsumeResourceAt(int x, int y)
     {
         float waterCost, mineralCost;
         GetResourceCostAt(x, y, out waterCost, out mineralCost);
+        return _treeData.CanConsumeResource(waterCost, mineralCost);
+    }
 
-        return _treeData.TryConsumeResource(waterCost, mineralCost);
+    public void ConsumeResourceAt(int x, int y)
+    {
+        float waterCost, mineralCost;
+        GetResourceCostAt(x, y, out waterCost, out mineralCost);
+        _treeData.ConsumeResource(waterCost, mineralCost);
     }    
 }

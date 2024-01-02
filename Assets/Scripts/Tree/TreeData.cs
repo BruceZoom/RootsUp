@@ -20,6 +20,8 @@ public class TreeData
 
     public int ContainableInRange(int lx, int rx, int y) => _structureData.ContainableInRange(lx, rx, y);
 
+    public bool CanConsumeResource(float waterAmount, float mineralAmount) => mineralAmount <= _mineralDeposit && waterAmount <= _structureData.StoredWater;
+
     /// <summary>
     /// Deposit rain. Returns whether any water is deposited.
     /// </summary>
@@ -31,14 +33,10 @@ public class TreeData
         return remain != amount;
     }
 
-    public bool TryConsumeResource(float waterAmount, float mineralAmount)
+    public void ConsumeResource(float waterAmount, float mineralAmount)
     {
-        if (mineralAmount <= _mineralDeposit && _structureData.TryGetWater(waterAmount))
-        {
-            _mineralDeposit -= mineralAmount;
-            return true;
-        }
-        return false;
+        _structureData.TryGetWater(waterAmount);
+        _mineralDeposit -= mineralAmount;
     }
 
     public TreeData(int xLength, int yLength)
