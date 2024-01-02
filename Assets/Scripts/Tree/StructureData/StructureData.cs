@@ -31,6 +31,10 @@ public class StructureData
 
     public int Capacity => _containerData.Sum(kv => kv.Value.Capacity);
 
+    public int BlocksInRange(int lx, int rx, int y) => _rows.GetRange(0, Mathf.Min(y, _yLength - 1)).Sum(r => r.CountBlocks(lx, rx));
+
+    public int ContainableInRange(int lx, int rx, int y) => _rows.GetRange(0, Mathf.Min(y, _yLength - 1)).Sum(r => r.CountContainable(lx, rx));
+
     public StructureRowData Row(int y) => _rows[y];
 
     public float StoredWater => _containerData.Sum(kv => kv.Value.StoredWater);
@@ -92,7 +96,6 @@ public class StructureData
     {
         foreach (var container in _containerData.Values)
         {
-            Debug.Log($"trying {container.ContainerID}");
             if (container.AddWater(amount, out var remain) <= 0)
             {
                 return 0;
@@ -100,7 +103,6 @@ public class StructureData
             else
             {
                 amount = remain;
-                Debug.Log($"{container.ContainerID} is full");
             }
         }
         return amount;
@@ -141,7 +143,6 @@ public class StructureData
 
         foreach (var container in _containerData.Values.Reverse())
         {
-            Debug.Log($"trying {container.ContainerID}");
             if (container.GetWater(amount, out var remain) <= 0)
             {
                 return true;
@@ -149,7 +150,6 @@ public class StructureData
             else
             {
                 amount = remain;
-                Debug.Log($"{container.ContainerID} is empty");
             }
         }
 
@@ -157,11 +157,14 @@ public class StructureData
         return false;
     }
 
-    public void SetBlock(int targetX, int targetY)
+    /// <summary>
+    /// Add a block at given position. Returns whether need UI updates.
+    /// </summary>
+    public bool SetBlock(int targetX, int targetY)
     {
         if (_rows[targetY].HasBlock(targetX))
         {
-            return;
+            return false;
         }
 
         // set block
@@ -201,16 +204,17 @@ public class StructureData
             }
 
             // add spilled water back to new containers
-            AddWater(spilledWater);
+            float remain = AddWater(spilledWater);
 
             // since it already is a container, filling it will not create new ones above it
-            return;
+            return true;
         }
 
         // by default, only this block changes containability
         int leftX = targetX - 1;
         int rightX = targetX + 1;
         int lx, rx;
+        bool needUpdate = false;
 
         // no need to check cells in the same row if it is the lowest row
         // otherwise update containability normally
@@ -223,6 +227,7 @@ public class StructureData
                 // extend one cell to left because water can flow diagonally
                 // lx will not be 0
                 leftX = lx - 1;
+                needUpdate = true;
             }
 
             // try to fill cells to right
@@ -232,6 +237,7 @@ public class StructureData
                 // extend one cell to right because water can flow diagonally
                 // rx will not be xLength
                 rightX = rx + 1;
+                needUpdate = true;
             }
         }
 
@@ -247,7 +253,10 @@ public class StructureData
             //Debug.Log($"Next row to update: [{leftX}, {rightX}]");
             // go to next row
             y += 1;
+            needUpdate = true;
         }
+
+        return needUpdate;
     }
 
     public StructureData(int xLength, int yLength)

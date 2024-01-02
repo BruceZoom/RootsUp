@@ -36,6 +36,12 @@ public class StructureRowData
     internal int TotalContainable => _containable.Sum();
     internal int TotalHasBlock => _hasBlock.Sum();
 
+    internal int CountBlocks(int leftX, int rightX)
+    {
+        leftX = leftX >= 0 ? leftX : 0;
+        rightX = rightX < _xLength ? rightX : _xLength - 1;
+        return _hasBlock.GetRange(leftX, rightX - leftX + 1).Sum();
+    }
 
     /// <summary>
     /// Total number of containable cell from leftX to rightX.

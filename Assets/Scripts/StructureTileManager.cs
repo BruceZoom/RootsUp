@@ -1,14 +1,11 @@
-using ARCProject;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class StructureTileManager : MonoSingleton<StructureTileManager>
+public class StructureTileManager : PassiveSingleton<StructureTileManager>
 {
-    [SerializeField]
-    private EditController _editController;
-
     [Header("Tile Settings")]
     [SerializeField]
     private Tilemap _structureTilemap;
@@ -41,11 +38,13 @@ public class StructureTileManager : MonoSingleton<StructureTileManager>
 
     public override void Initialize()
     {
+        base.Initialize();
+
         // need to handle synchronization
         // design choice: always turn on collider but in collision free layer
         //_worldBoundaryCollider.enabled = false;
 
-        _editController.Initialize();
+        //_editController.Initialize();
     }
 
     public void SetBlock(Vector3Int cellPos)

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
+public abstract class PassiveSingleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T _instance;
 
@@ -8,22 +8,20 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         get
         {
-            /*
             if (_instance == null)
                 Debug.LogWarning(typeof(T).ToString() + " is NULL.");
-            */
             return _instance;
         }
     }
 
-    private void Awake()
+    public virtual void Initialize()
     {
+        // initialize instance
         if (_instance != null)
         {
             if (_instance != this)
             {
-                Debug.LogWarning("Multiple mono-singleton instantiated.");
-                Destroy(this.gameObject);
+                Destroy(this);
             }
             return;
         }
@@ -31,8 +29,7 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
         {
             _instance = this as T;
         }
-        Initialize();
-    }
 
-    public abstract void Initialize();
+        // more initialization in child class
+    }
 }

@@ -14,7 +14,7 @@ public class EditController : MonoBehaviour
     public enum MouseStatus { Idle, Pressing };
     private MouseStatus _mouseStatus = MouseStatus.Idle;
 
-    private StructureData _structreData;
+    private StructureData _structure;
 
     [SerializeField]
     private List<Vector3Int> _initialBlocks;
@@ -28,15 +28,15 @@ public class EditController : MonoBehaviour
     [Button("Test Add Water")]
     private void TestAddWater()
     {
-        float remain = _structreData.AddWater(_amountToTest);
-        Debug.Log($"Storage: {_structreData.StoredWater}, Remains: {remain}");
+        float remain = _structure.AddWater(_amountToTest);
+        Debug.Log($"Storage: {_structure.StoredWater}, Remains: {remain}");
     }
 
     [Button("Test Get Water")]
     private void TestGetWater()
     {
-        bool success = _structreData.TryGetWater(_amountToTest);
-        Debug.Log($"Storage: {_structreData.StoredWater}. " + (success ? "Succeeded." : "Failed."));
+        bool success = _structure.TryGetWater(_amountToTest);
+        Debug.Log($"Storage: {_structure.StoredWater}. " + (success ? "Succeeded." : "Failed."));
     }
 
     public void Initialize()
@@ -46,15 +46,14 @@ public class EditController : MonoBehaviour
             _actions = new EditInputActions();
         }
 
-        Debug.Log(StructureTileManager.Instance.WorldBoundary.max);
-        _structreData = new StructureData((int)StructureTileManager.Instance.WorldBoundary.max.x, (int)StructureTileManager.Instance.WorldBoundary.max.y);
+        _structure = SimulationManager.Instance.Structure;
     }
 
     private void Start()
     {
         foreach (var cellPos in _initialBlocks)
         {
-            AddBlockAtCell(cellPos);
+            AddBlockAtCell(cellPos, byPass:true);
         }
     }
 
@@ -96,7 +95,7 @@ public class EditController : MonoBehaviour
 
         // only update when click a valid position
         if (StructureTileManager.Instance.IsValidPosition(_currentPos) 
-            && _structreData.CanGrow(_currentCellPos.x, _currentCellPos.y))
+            && _structure.CanGrow(_currentCellPos.x, _currentCellPos.y))
         {
             AddBlockAtCell(_currentCellPos);
         }
@@ -133,7 +132,7 @@ public class EditController : MonoBehaviour
         // only update when mouse pressed and at valid position
         if (_mouseStatus == MouseStatus.Pressing
             && StructureTileManager.Instance.IsValidPosition(_currentPos)
-            && _structreData.CanGrow(_currentCellPos.x, _currentCellPos.y))
+            && _structure.CanGrow(_currentCellPos.x, _currentCellPos.y))
         {
             AddBlockAtCell(cellPos);
         }
@@ -143,7 +142,11 @@ public class EditController : MonoBehaviour
     {
         if (StructureTileManager.Instance.IsValidPosition(_currentPos))
         {
-            Debug.Log(_structreData.DebugInfo(_currentCellPos.x, _currentCellPos.y));
+            Debug.Log(_structure.DebugInfo(_currentCellPos.x, _currentCellPos.y));
+
+            float waterCost, mineralCost;
+            SimulationManager.Instance.GetResourceCostAt(_currentCellPos.x, _currentCellPos.y, out waterCost, out mineralCost);
+            Debug.Log($"Water Cost: {waterCost}, Mineral Cost: {mineralCost}");
         }
     }
 
@@ -151,10 +154,11 @@ public class EditController : MonoBehaviour
     /// Add a new tile to given cell position.
     /// Regardless of whether it is valid. Need to be checked by callers.
     /// </summary>
-    private void AddBlockAtCell(Vector3Int cellPos)
+    private void AddBlockAtCell(Vector3Int cellPos, bool byPass=false)
     {
         //if (_tilemap.HasTile(cellPos))
-        if (_structreData.HasBlock(cellPos.x, cellPos.y))
+        if (_structure.HasBlock(cellPos.x, cellPos.y)
+            || (!byPass && !SimulationManager.Instance.TryConsumeResourceAt(cellPos.x, cellPos.y)))
         {
             //Debug.Log($"Already have a tile at {cellPos}");
             return;
@@ -163,15 +167,19 @@ public class EditController : MonoBehaviour
         //Debug.Log(cellPos);
 
         //_tilemap.SetTile(cellPos, _tileToAdd);
-        _structreData.SetBlock(cellPos.x, cellPos.y);
+        _structure.SetBlock(cellPos.x, cellPos.y);
 
+        GameplayUIManager.Instance.DepositUI.SetWaterDeposit(_structure.StoredWater, _structure.Capacity);
+
+        /*
         // test code
-        var cap = _structreData.CapacityOverEstimate;
+        var cap = _structure.CapacityOverEstimate;
         if (_capacityOverEstimate != cap)
         {
-            Debug.Log($"Capacity overestimate changed.\nCapacity: {cap}, Block: {_structreData.TotalHasBlock}, Containable: {_structreData.TotalContainable}");
+            Debug.Log($"Capacity overestimate changed.\nCapacity: {cap}, Block: {_structure.TotalHasBlock}, Containable: {_structure.TotalContainable}");
         }
 
-        Debug.Log($"True capacity: {_structreData.Capacity}");
+        Debug.Log($"True capacity: {_structure.Capacity}");
+        */
     }
 }
