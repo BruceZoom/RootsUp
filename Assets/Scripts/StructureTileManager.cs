@@ -1,8 +1,10 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 public class StructureTileManager : PassiveSingleton<StructureTileManager>
 {
@@ -12,6 +14,9 @@ public class StructureTileManager : PassiveSingleton<StructureTileManager>
 
     [SerializeField]
     private RuleTile _structureTile;
+
+    [SerializeField]
+    private float _structureTileAnimTime = 0.2f;
 
     [SerializeField]
     private Tilemap _waterTilemap;
@@ -37,7 +42,7 @@ public class StructureTileManager : PassiveSingleton<StructureTileManager>
     public Vector3Int WorldToCell(Vector2 pos) => _structureTilemap.WorldToCell(pos);
 
     public Vector3 GetCellCostPos(Vector3Int cellPos) =>
-        Camera.main.WorldToScreenPoint(_structureTilemap.GetCellCenterWorld(cellPos));
+        Camera.main.WorldToScreenPoint(_structureTilemap.GetCellCenterWorld(cellPos) + Vector3.up * 0.5f);
 
     public override void Initialize()
     {
@@ -53,6 +58,19 @@ public class StructureTileManager : PassiveSingleton<StructureTileManager>
     public void SetBlock(Vector3Int cellPos)
     {
         _structureTilemap.SetTile(cellPos, _structureTile);
+        // animation
+        var tileScale = 0f;
+        var tileTransform = _structureTilemap.GetTransformMatrix(cellPos);
+        _structureTilemap.SetTileFlags(cellPos, TileFlags.None);
+        DOTween.To(() => tileScale,
+                   v => {
+                       _structureTilemap.SetTransformMatrix(cellPos, tileTransform * Matrix4x4.Scale(Vector3.one * v));
+                       tileScale = v;
+                   }, 1f, _structureTileAnimTime)
+                .From(0f)
+                .OnComplete(() => {
+                    _structureTilemap.RefreshTile(cellPos);
+                });
     }
 
     public void SetWaterBody(Vector3Int interval)
@@ -68,7 +86,6 @@ public class StructureTileManager : PassiveSingleton<StructureTileManager>
         for (int x = interval.x; x <= interval.z; x++)
         {
             _waterTilemap.SetTile(new Vector3Int(x, interval.y, 0), null);
-            Debug.Log($"Clear at: {new Vector3Int(x, interval.y, 0)}");
         }
     }
 

@@ -1,4 +1,10 @@
+using DG.Tweening.Core;
+using DG.Tweening.Plugins.Options;
+using DG.Tweening;
 using System.Collections.Generic;
+using UnityEngine.UI;
+using Unity.VisualScripting;
+using UnityEngine;
 
 public static class MyExtensions
 {
@@ -18,5 +24,12 @@ public static class MyExtensions
         var ret = source[idx];
         source.RemoveAt(idx);
         return ret;
+    }
+
+    public static TweenerCore<float, float, FloatOptions> DOMaxValue(this Slider target, float endValue, float duration, bool snapping = false)
+    {
+        TweenerCore<float, float, FloatOptions> t = DOTween.To(() => target.maxValue, x => target.maxValue = x, endValue, duration);
+        t.SetOptions(snapping).SetTarget(target);
+        return t;
     }
 }
