@@ -374,7 +374,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: -1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -1119,6 +1119,7 @@ MonoBehaviour:
   _simulationManager: {fileID: 2089717498}
   _gameplayUIManager: {fileID: 750793989}
   _editController: {fileID: 870507096}
+  _villagerObjectPool: {fileID: 1457992836}
 --- !u!4 &311898322
 Transform:
   m_ObjectHideFlags: 0
@@ -1133,6 +1134,7 @@ Transform:
   m_Children:
   - {fileID: 2089717499}
   - {fileID: 870507097}
+  - {fileID: 1457992835}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3376,6 +3378,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1426359805}
   m_CullTransparentMesh: 1
+--- !u!1 &1457992834
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1457992835}
+  - component: {fileID: 1457992836}
+  m_Layer: 0
+  m_Name: VillagerObjectPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1457992835
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1457992834}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 311898322}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1457992836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1457992834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 748ea954dc2fa9042a95741e0a84aef5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _initialVillager: 10
+  _villagerPrefab: {fileID: 1590086450104726290, guid: ae981d12c4b86c0459488d71d9a4efc8, type: 3}
+  _defaultY: -3.5
 --- !u!1 &1580450112
 GameObject:
   m_ObjectHideFlags: 0
@@ -3867,10 +3916,20 @@ MonoBehaviour:
   _branchDepositRate: 0.01
   _containerDepositRate: 0.02
   _overWorldCenter: {x: 31.5, y: 0.5}
+  _treeInteractRange: {x: 30, y: 33}
   _initialRainRange: {x: 0, y: 16, z: 64}
   _waterCostMultiplier: 0.2
   _mineralCostMultiplier: 0.2
   _mineralCostStartDist: 16
+  _population:
+    _initialVillagers: 2
+    _defaultHomeX: 24
+    _villagerSetting:
+      _idleTimeMin: 10
+      _idleTimeMax: 15
+      _homeTimeMin: 10
+      _homeTimeMax: 15
+      _homeX: 20
 --- !u!4 &2089717499
 Transform:
   m_ObjectHideFlags: 0

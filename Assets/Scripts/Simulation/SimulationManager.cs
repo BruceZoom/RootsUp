@@ -10,7 +10,7 @@ public class SimulationManager : PassiveSingleton<SimulationManager>
     private float _simTimer = 0f;
     private float _nextSimTime;
 
-    [Header("Simulation Settings")]
+    [Header("General Simulation Settings")]
     [SerializeField]
     private float _simInterval = 1f;
 
@@ -29,6 +29,9 @@ public class SimulationManager : PassiveSingleton<SimulationManager>
     private Vector2 _overWorldCenter;
 
     [SerializeField]
+    private Vector2 _treeInteractRange;
+
+    [SerializeField]
     private Vector3Int _initialRainRange;
 
     [Header("Cost Settings")]
@@ -41,20 +44,29 @@ public class SimulationManager : PassiveSingleton<SimulationManager>
     [SerializeField]
     private float _mineralCostStartDist = 16;
 
+    [Header("Villager Settings")]
+    [SerializeField]
+    private PopulationSimulator _population;
 
     public StructureData Structure => _treeData.StructureData;
+    public TreeData Tree => _treeData;
+
+    public Vector2 TreeInteractRange => _treeInteractRange;
 
     public override void Initialize()
     {
         base.Initialize();
-
+        
         Debug.Log(StructureTileManager.Instance.WorldBoundary.max);
         _treeData = new TreeData((int)StructureTileManager.Instance.WorldBoundary.max.x, (int)StructureTileManager.Instance.WorldBoundary.max.y);
+
+        _population.Initialize();
     }
 
     private void Start()
     {
         _nextSimTime = _simTimer + _simInterval;
+        _population.Start(_simTimer);
     }
 
     private void Update()
@@ -64,11 +76,12 @@ public class SimulationManager : PassiveSingleton<SimulationManager>
         {
             _nextSimTime += _simInterval;
 
-            Simulate();
+            SimulateRain();
+            _population.Simulate(_simTimer);
         }
     }
 
-    private void Simulate()
+    private void SimulateRain()
     {
         var containable = _treeData.ContainableInRange(_initialRainRange.x, _initialRainRange.z, _initialRainRange.y);
         var blocks = _treeData.BlocksInRange(_initialRainRange.x, _initialRainRange.z, _initialRainRange.y);

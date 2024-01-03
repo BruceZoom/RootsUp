@@ -14,6 +14,8 @@ public class GameplayManager : MonoSingleton<GameplayManager>
     [SerializeField]
     private EditController _editController;
 
+    [SerializeField]
+    private VillagerObjectPool _villagerObjectPool;
 
     public override void Initialize()
     {
@@ -22,5 +24,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>
         _simulationManager.Initialize();
 
         _editController.Initialize();
+        _villagerObjectPool.Initialize();
     }
 }
