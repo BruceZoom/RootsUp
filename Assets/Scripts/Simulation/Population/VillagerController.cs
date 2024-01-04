@@ -15,10 +15,51 @@ public class VillagerController : MonoBehaviour
 
     private VillagerActionCallback _deathCallback = null;
 
+    public enum EmojiName { Water, Happy, Unhappy, Dead };
+
+    [SerializeField]
+    private GameObject _waterIcon;
+    [SerializeField]
+    private GameObject _happyIcon;
+    [SerializeField]
+    private GameObject _unhappyIcon;
+    [SerializeField]
+    private GameObject _deadIcon;
+
     private void Awake()
     {
         _animator = GetComponent<Animator>();
         //_rb2d = GetComponent<Rigidbody2D>();
+    }
+
+    public void ToggleEmoji(EmojiName emojiName, bool enable)
+    {
+        _waterIcon.SetActive(false);
+        _happyIcon.SetActive(false);
+        _unhappyIcon.SetActive(false);
+        _deadIcon.SetActive(false);
+        if (enable)
+        {
+            switch (emojiName)
+            {
+                case EmojiName.Water:
+                    _waterIcon.SetActive(true);
+                    Debug.Log("water");
+                    break;
+                case EmojiName.Happy:
+                    _happyIcon.SetActive(true);
+                    Debug.Log("happy");
+                    break;
+                case EmojiName.Unhappy:
+                    _unhappyIcon.SetActive(true);
+                    Debug.Log("unhappy");
+                    break;
+                case EmojiName.Dead:
+                    _deadIcon.SetActive(true);
+                    Debug.Log("dead");
+                    break;
+            }
+        }
     }
 
     /// <summary>

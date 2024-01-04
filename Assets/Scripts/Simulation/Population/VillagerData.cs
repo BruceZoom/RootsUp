@@ -97,6 +97,7 @@ public class VillagerData
 
         _state = VillaterState.GettingWater;
         _bindedController.GoGetWater(_setting.GetWaterTime, FinishGetWater);
+        _bindedController.ToggleEmoji(VillagerController.EmojiName.Water, true);
     }
 
     private void FinishGetWater()
@@ -109,6 +110,14 @@ public class VillagerData
             // increase satisfaction
             _satisfiedCounter += 1;
             StartIdle();
+            if (_satisfiedCounter > 0)
+            {
+                _bindedController.ToggleEmoji(VillagerController.EmojiName.Happy, true);
+            }
+            else
+            {
+                _bindedController.ToggleEmoji(VillagerController.EmojiName.Unhappy, true);
+            }
         }
         // if there are not enough water
         else
@@ -119,12 +128,14 @@ public class VillagerData
             // die if didn't water enough water for days
             if (_satisfiedCounter <= -_setting.DeathCounter)
             {
+                _bindedController.ToggleEmoji(VillagerController.EmojiName.Dead, true);
                 Die();
             }
             // otherwise start idle
             else
             {
                 StartIdle();
+                _bindedController.ToggleEmoji(VillagerController.EmojiName.Unhappy, true);
             }
         }
     }
