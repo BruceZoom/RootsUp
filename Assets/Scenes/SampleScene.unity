@@ -1138,6 +1138,7 @@ Transform:
   - {fileID: 2089717499}
   - {fileID: 870507097}
   - {fileID: 1457992835}
+  - {fileID: 901520699}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2484,6 +2485,51 @@ Transform:
   m_Father: {fileID: 311898322}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &901520698
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 901520699}
+  - component: {fileID: 901520700}
+  m_Layer: 0
+  m_Name: CloudObjectPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &901520699
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901520698}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 311898322}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &901520700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901520698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f71e62d0a75fc3844b5abe50f9648da8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _cloudPrefab: {fileID: 2072024082290246632, guid: 41de8a3af414ff74dae32a2433b261c0, type: 3}
 --- !u!1 &920722826
 GameObject:
   m_ObjectHideFlags: 0
@@ -4147,7 +4193,7 @@ MonoBehaviour:
   _mineralRate: 0.05
   _branchDepositRate: 0.01
   _containerDepositRate: 0.02
-  _overWorldCenter: {x: 31.5, y: 0.5}
+  _overWorldCenter: {x: 32, y: 0}
   _treeInteractRange: {x: 30, y: 33}
   _initialRainRange: {x: 0, y: 16, z: 64}
   _waterCostMultiplier: 0.2
