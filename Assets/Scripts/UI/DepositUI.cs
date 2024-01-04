@@ -25,6 +25,12 @@ public class DepositUI : MonoBehaviour
     [SerializeField]
     private float _mineralTextAnimTime = 0.25f;
 
+    [SerializeField]
+    private TextMeshProUGUI _populationText;
+
+    [SerializeField]
+    private float _populationTextAnimTime = 0.25f;
+
     private float _waterCapacity;
 
     private float _waterDeposit;
@@ -67,5 +73,10 @@ public class DepositUI : MonoBehaviour
             _waterDepositSlider.DOValue(_waterDeposit, _waterSliderAnimTime);
         }
         _waterDepositText.DOText($"{_waterDeposit:0.0} m^3 / {_waterCapacity:0} m^3", _waterTextAnimTime);
+    }
+
+    public void SetPopulation(int population)
+    {
+        _populationText.DOText($"Population: {population}", _populationTextAnimTime);
     }
 }

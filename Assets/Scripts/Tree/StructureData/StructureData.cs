@@ -16,6 +16,9 @@ public class StructureData
 
     private int _currentContainerId = -1;
 
+    // buffered value of water storage
+    private float _waterStorage = -1;
+
     public bool HasBlock(int x, int y) => _rows[y].HasBlock(x);
     public bool CanGrow(int x, int y) => 0 <= y && y < _yLength && 0 <= x && x < _xLength && (
                                             // at least one adjacent block
@@ -37,7 +40,18 @@ public class StructureData
 
     public StructureRowData Row(int y) => _rows[y];
 
-    public float StoredWater => _containerData.Sum(kv => kv.Value.StoredWater);
+    public float StoredWater
+    {
+        get {
+            //Debug.Log($"True storage: {_containerData.Sum(kv => kv.Value.StoredWater)}");
+            //Debug.Log($"Buffered storage: {_waterStorage}");
+            if (_waterStorage == -1)
+            {
+                _waterStorage = _containerData.Sum(kv => kv.Value.StoredWater);
+            }
+            return _waterStorage;
+        }
+    }
 
     public int CurrentContainerId
     {
@@ -98,6 +112,7 @@ public class StructureData
         {
             if (container.AddWater(amount, out var remain) <= 0)
             {
+                _waterStorage = -1;
                 return 0;
             }
             else
@@ -105,6 +120,7 @@ public class StructureData
                 amount = remain;
             }
         }
+        _waterStorage = -1;
         return amount;
 
         /*
@@ -145,6 +161,7 @@ public class StructureData
         {
             if (container.GetWater(amount, out var remain) <= 0)
             {
+                _waterStorage = -1;
                 return true;
             }
             else
@@ -206,6 +223,7 @@ public class StructureData
             // add spilled water back to new containers
             float remain = AddWater(spilledWater);
 
+            _waterStorage = -1;
             // since it already is a container, filling it will not create new ones above it
             return true;
         }

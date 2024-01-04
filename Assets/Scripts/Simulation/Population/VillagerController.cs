@@ -13,8 +13,7 @@ public class VillagerController : MonoBehaviour
     [SerializeField]
     private float _walkSpeed = 1f;
 
-    [SerializeField]
-    private float _getWaterTime = 3f;
+    private VillagerActionCallback _deathCallback = null;
 
     private void Awake()
     {
@@ -41,18 +40,18 @@ public class VillagerController : MonoBehaviour
     /// <summary>
     /// Walk to the tree and get water.
     /// </summary>
-    public void GoGetWater(VillagerActionCallback finishCallback=null)
+    public void GoGetWater(float getWaterTime, VillagerActionCallback finishCallback =null)
     {
         var targetX = Random.Range(SimulationManager.Instance.TreeInteractRange.x, SimulationManager.Instance.TreeInteractRange.y);
         WalkTo(targetX, () => {
             _animator.SetBool("operating", true);
-            StartCoroutine(GetWater(finishCallback));
+            StartCoroutine(GetWater(getWaterTime, finishCallback));
         });
     }
 
-    private IEnumerator GetWater(VillagerActionCallback finishCallback = null)
+    private IEnumerator GetWater(float getWaterTime, VillagerActionCallback finishCallback = null)
     {
-        yield return new WaitForSeconds(_getWaterTime);
+        yield return new WaitForSeconds(getWaterTime);
 
         _animator.SetBool("operating", false);
         finishCallback?.Invoke();
@@ -84,6 +83,18 @@ public class VillagerController : MonoBehaviour
     /// </summary>
     public void Die(VillagerActionCallback finishCallback = null)
     {
-        // TODO:
+        _animator.SetBool("dead", true);
+        _deathCallback = finishCallback;
+    }
+
+    public void Dead()
+    {
+        _deathCallback?.Invoke();
+        _deathCallback = null;
+    }
+
+    public void Revive()
+    {
+        _animator.SetBool("dead", false);
     }
 }

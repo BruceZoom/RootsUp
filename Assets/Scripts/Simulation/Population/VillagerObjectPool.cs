@@ -42,6 +42,7 @@ public class VillagerObjectPool : PassiveSingleton<VillagerObjectPool>
         {
             var villager = _villagerPool.Pop();
             villager.gameObject.SetActive(true);
+            villager.Revive();
 
             return villager;
         }

@@ -35,7 +35,7 @@ public class TreeData
 
     public void ConsumeResource(float waterAmount, float mineralAmount)
     {
-        _structureData.TryGetWater(waterAmount);
+        bool succeed = _structureData.TryGetWater(waterAmount);
         _mineralDeposit -= mineralAmount;
     }
 

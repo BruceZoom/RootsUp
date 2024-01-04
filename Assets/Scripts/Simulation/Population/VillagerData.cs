@@ -8,13 +8,19 @@ public class VillagerData
     [Serializable]
     public struct VillagerSetting
     {
-        public float _idleTimeMin;
+        public float IdleTimeMin;
 
-        public float _idleTimeMax;
+        public float IdleTimeMax;
 
-        public float _homeTimeMin;
+        public float HomeTimeMin;
 
-        public float _homeTimeMax;
+        public float HomeTimeMax;
+
+        public float GetWaterTime;
+
+        public float WaterConsumption;
+
+        public int DeathCounter;
 
         [HideInInspector]
         public float _homeX;
@@ -27,6 +33,10 @@ public class VillagerData
     private float _nextUpdateTime;
 
     private bool _dead = false;
+
+    private int _satisfiedCounter = 0;
+
+    public int Satisfaction => _satisfiedCounter;
 
 
     public void Start(float startTime)
@@ -50,11 +60,11 @@ public class VillagerData
                     LeaveHome();
                     GoGetWater();
                     _state = VillaterState.Idle;
-                    _nextUpdateTime += UnityEngine.Random.Range(_setting._idleTimeMin, _setting._idleTimeMax);
+                    _nextUpdateTime += _setting.GetWaterTime + UnityEngine.Random.Range(_setting.IdleTimeMin, _setting.IdleTimeMax);
                     break;
                 case VillaterState.Idle:
                     GoHome();
-                    _nextUpdateTime += UnityEngine.Random.Range(_setting._homeTimeMin, _setting._homeTimeMax);
+                    _nextUpdateTime += UnityEngine.Random.Range(_setting.HomeTimeMin, _setting.HomeTimeMax);
                     break;
                 default:
                     // queuing the current update if the previous has not finished
@@ -86,14 +96,47 @@ public class VillagerData
         }
 
         _state = VillaterState.GettingWater;
-        _bindedController.GoGetWater(FinishGetWater);
+        _bindedController.GoGetWater(_setting.GetWaterTime, FinishGetWater);
     }
 
     private void FinishGetWater()
     {
-        // TODO: if not enough water, die
-        // TODO: if enough water, go idle
-        StartIdle();
+        // if there are enough water then get water and start idle
+        if (SimulationManager.Instance.Tree.CanConsumeResource(_setting.WaterConsumption, 0f))
+        {
+            Debug.Log("Nice!");
+            SimulationManager.Instance.Tree.ConsumeResource(_setting.WaterConsumption, 0f);
+            // increase satisfaction
+            _satisfiedCounter += 1;
+            StartIdle();
+        }
+        // if there are not enough water
+        else
+        {
+            Debug.Log("I am thirsty!");
+            // decrease satifaction
+            _satisfiedCounter = Mathf.Min(_satisfiedCounter - 1, -1);
+            // die if didn't water enough water for days
+            if (_satisfiedCounter <= -_setting.DeathCounter)
+            {
+                Die();
+            }
+            // otherwise start idle
+            else
+            {
+                StartIdle();
+            }
+        }
+    }
+
+    private void Die()
+    {
+        _dead = true;
+
+        _bindedController.Die(delegate {
+            VillagerObjectPool.Instance.ReturnVillager(_bindedController);
+            _bindedController = null;
+        });
     }
 
     private void StartIdle()
