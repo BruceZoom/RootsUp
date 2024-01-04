@@ -39,8 +39,10 @@ public class PopulationSimulator
 
         // reproduce
         float avgSat = (float)_villagerData.Sum(v => Mathf.Max(v.Satisfaction, 0)) / _villagerData.Count;
+        // only reproduce if reaches minimal average satisfaction
         if (avgSat > _minReproduceAvgSat)
         {
+            // only reproduce when maxProp * (1 - 1 / (sqrt(avgSat - minSat) + 1)) > p
             float p = UnityEngine.Random.Range(0f, 1f);
             // m - m/x > p
             // m - p > m/x
