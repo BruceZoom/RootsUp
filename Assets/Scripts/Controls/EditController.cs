@@ -197,6 +197,9 @@ public class EditController : MonoBehaviour
         //_tilemap.SetTile(cellPos, _tileToAdd);
         _structure.SetBlock(cellPos.x, cellPos.y);
 
+        var pos = StructureTileManager.Instance.CellToWorld(cellPos);
+        SimulationManager.Instance.TreeBound = new Vector3(pos.x, pos.y, pos.x);
+
         GameplayUIManager.Instance.DepositUI.SetWaterDeposit(_structure.StoredWater, _structure.Capacity);
         GameplayUIManager.Instance.CostUI.HideCost();
 

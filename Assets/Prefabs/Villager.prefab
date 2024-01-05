@@ -76,9 +76,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 1156420215
+  m_SortingLayer: 2
+  m_SortingOrder: 5
   m_Sprite: {fileID: -1558555493, guid: dd8ba080d754afe4ab38f3eb25533df2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -103,7 +103,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _walkSpeed: 2
-  _bubble: {fileID: 0}
   _waterIcon: {fileID: 6462290636907324807}
   _happyIcon: {fileID: 5700365214822993623}
   _unhappyIcon: {fileID: 7332152991021006787}
@@ -199,8 +198,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1126844901
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: -1458660986, guid: 021f8f974ea856048a80cb65c6e651ca, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -283,8 +282,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1126844901
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: -312775098, guid: 021f8f974ea856048a80cb65c6e651ca, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -367,8 +366,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1126844901
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 1433290158, guid: 021f8f974ea856048a80cb65c6e651ca, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -451,8 +450,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1126844901
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 1587137964, guid: 021f8f974ea856048a80cb65c6e651ca, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

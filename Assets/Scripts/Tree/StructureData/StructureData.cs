@@ -170,8 +170,8 @@ public class StructureData
             }
         }
 
-        Debug.LogError("Should not consume water if there is not enough water in the first place.");
-        return false;
+        //Debug.LogError("Should not consume water if there is not enough water in the first place.");
+        return amount <= 0;
     }
 
     /// <summary>

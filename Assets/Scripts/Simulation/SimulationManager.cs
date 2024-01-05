@@ -44,29 +44,50 @@ public class SimulationManager : PassiveSingleton<SimulationManager>
     [SerializeField]
     private float _mineralCostStartDist = 16;
 
-    [Header("Villager Settings")]
+    [Header("Population Settings")]
     [SerializeField]
     private PopulationSimulator _population;
+
+    [Header("Weather Settings")]
+    [SerializeField]
+    private WeatherSimulator _weatherSimulator;
+
+    private Vector3 _treeBound;
 
     public StructureData Structure => _treeData.StructureData;
     public TreeData Tree => _treeData;
 
     public Vector2 TreeInteractRange => _treeInteractRange;
 
+    public Vector3 TreeBound
+    {
+        get => _treeBound;
+        set
+        {
+            _treeBound.x = Mathf.Min(_treeBound.x, value.x);
+            _treeBound.y = Mathf.Max(_treeBound.y, value.y);
+            _treeBound.z = Mathf.Max(_treeBound.z, value.z);
+        }
+    }
+
     public override void Initialize()
     {
         base.Initialize();
-        
+
+        _treeBound = new Vector3(_overWorldCenter.x, _overWorldCenter.y, _overWorldCenter.x);
+
         Debug.Log(StructureTileManager.Instance.WorldBoundary.max);
         _treeData = new TreeData((int)StructureTileManager.Instance.WorldBoundary.max.x, (int)StructureTileManager.Instance.WorldBoundary.max.y);
 
         _population.Initialize();
+        _weatherSimulator.Initialize();
     }
 
     private void Start()
     {
         _nextSimTime = _simTimer + _simInterval;
         _population.Start(_simTimer);
+        _weatherSimulator.Start(_simTimer);
     }
 
     private void Update()
@@ -78,15 +99,21 @@ public class SimulationManager : PassiveSingleton<SimulationManager>
 
             SimulateRain();
             _population.Simulate(_simTimer);
+            _weatherSimulator.Simulate(_simTimer);
         }
     }
 
     private void SimulateRain()
     {
-        var containable = _treeData.ContainableInRange(_initialRainRange.x, _initialRainRange.z, _initialRainRange.y);
-        var blocks = _treeData.BlocksInRange(_initialRainRange.x, _initialRainRange.z, _initialRainRange.y);
-
-        float rainToAdd = ((float)blocks * _branchDepositRate + (float)(containable - blocks) * _containerDepositRate) * _simInterval;
+        float rainToAdd = 0f;
+        foreach (Vector3Int rainRange in _weatherSimulator.GetRainRange())
+        {
+            //Debug.Log(rainRange);
+            var containable = _treeData.ContainableInRange(rainRange.x, rainRange.z, rainRange.y);
+            var blocks = _treeData.BlocksInRange(rainRange.x, rainRange.z, rainRange.y);
+            rainToAdd += ((float)blocks * _branchDepositRate + (float)(containable - blocks) * _containerDepositRate) * _simInterval;
+        }
+        
         rainToAdd = (float)decimal.Round((decimal)rainToAdd, 1);
 
         bool updateWater = _treeData.DepositRain(rainToAdd, _mineralRate);

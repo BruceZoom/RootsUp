@@ -79,9 +79,9 @@ public class VillagerData
         if (_bindedController != null)
         {
             Debug.LogError("Didn't return binded controller.");
-            VillagerObjectPool.Instance.ReturnVillager(_bindedController);
+            VillagerObjectPool.Instance.ReturnObject(_bindedController);
         }
-        _bindedController = VillagerObjectPool.Instance.GetVillager();
+        _bindedController = VillagerObjectPool.Instance.GetObject();
         var pos = _bindedController.gameObject.transform.position;
         pos.x = _setting._homeX + UnityEngine.Random.Range(-0.1f, 0.1f);
         _bindedController.gameObject.transform.position = pos;
@@ -145,7 +145,7 @@ public class VillagerData
         _dead = true;
 
         _bindedController.Die(delegate {
-            VillagerObjectPool.Instance.ReturnVillager(_bindedController);
+            VillagerObjectPool.Instance.ReturnObject(_bindedController);
             _bindedController = null;
         });
     }
@@ -178,7 +178,7 @@ public class VillagerData
     private void ArriveHome()
     {
         _state = VillaterState.AtHome;
-        VillagerObjectPool.Instance.ReturnVillager(_bindedController);
+        VillagerObjectPool.Instance.ReturnObject(_bindedController);
         _bindedController = null;
     }
 

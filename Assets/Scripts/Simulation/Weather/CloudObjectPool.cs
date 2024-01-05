@@ -2,13 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CloudObjectPool : PassiveSingleton<CloudObjectPool>
+public class CloudObjectPool : ObjectPool<CloudController>
 {
-    [SerializeField]
-    private GameObject _cloudPrefab;
-
-    public override void Initialize()
+    protected override CloudController OnCreate(CloudController newOjb)
     {
-        base.Initialize();
+        newOjb.Initialize();
+
+        return base.OnCreate(newOjb);
     }
 }

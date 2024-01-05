@@ -315,7 +315,7 @@ GameObject:
   - component: {fileID: 297983348}
   - component: {fileID: 297983347}
   - component: {fileID: 297983346}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Structure
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -375,8 +375,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1156420215
+  m_SortingLayer: 2
   m_SortingOrder: -1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -1122,7 +1122,6 @@ MonoBehaviour:
   _simulationManager: {fileID: 2089717498}
   _gameplayUIManager: {fileID: 750793989}
   _editController: {fileID: 870507096}
-  _villagerObjectPool: {fileID: 1457992836}
 --- !u!4 &311898322
 Transform:
   m_ObjectHideFlags: 0
@@ -1541,7 +1540,10 @@ GameObject:
   - component: {fileID: 748903405}
   - component: {fileID: 748903407}
   - component: {fileID: 748903406}
-  m_Layer: 0
+  - component: {fileID: 748903410}
+  - component: {fileID: 748903409}
+  - component: {fileID: 748903408}
+  m_Layer: 6
   m_Name: Earth
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1601,8 +1603,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1156420215
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -2314,6 +2316,79 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!66 &748903408
+CompositeCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748903404}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_GeometryType: 0
+  m_GenerationType: 0
+  m_EdgeRadius: 0
+  m_ColliderPaths:
+  - m_Collider: {fileID: 748903410}
+    m_ColliderPaths:
+    - - X: 0
+        Y: -50000000
+      - X: 640000000
+        Y: -50000000
+      - X: 640000000
+        Y: -40000000
+      - X: 0
+        Y: -40000000
+  m_CompositePaths:
+    m_Paths:
+    - - {x: 63.99997, y: -5}
+      - {x: 63.99997, y: -4}
+      - {x: 0, y: -4.000029}
+      - {x: 0.000029300001, y: -5}
+  m_VertexDistance: 0.0005
+  m_OffsetDistance: 0.00005
+--- !u!50 &748903409
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748903404}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!19719996 &748903410
+TilemapCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748903404}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 1
+  m_Offset: {x: 0, y: 0}
+  m_MaximumTileChangeCount: 1000
+  m_ExtrusionFactor: 0
 --- !u!1 &750793984
 GameObject:
   m_ObjectHideFlags: 0
@@ -2529,7 +2604,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f71e62d0a75fc3844b5abe50f9648da8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cloudPrefab: {fileID: 2072024082290246632, guid: 41de8a3af414ff74dae32a2433b261c0, type: 3}
+  _initialSize: 10
+  _prefab: {fileID: 2543760261167749442, guid: 41de8a3af414ff74dae32a2433b261c0, type: 3}
 --- !u!1 &920722826
 GameObject:
   m_ObjectHideFlags: 0
@@ -3302,8 +3378,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1156420215
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -3471,8 +3547,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 748ea954dc2fa9042a95741e0a84aef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _initialVillager: 10
-  _villagerPrefab: {fileID: 1590086450104726290, guid: ae981d12c4b86c0459488d71d9a4efc8, type: 3}
+  _initialSize: 10
+  _prefab: {fileID: 1590086450104726290, guid: ae981d12c4b86c0459488d71d9a4efc8, type: 3}
   _defaultY: -3.5
 --- !u!1 &1580450112
 GameObject:
@@ -3882,8 +3958,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1126844901
+  m_SortingLayer: 3
   m_SortingOrder: 5
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -4193,7 +4269,7 @@ MonoBehaviour:
   _mineralRate: 0.05
   _branchDepositRate: 0.01
   _containerDepositRate: 0.02
-  _overWorldCenter: {x: 32, y: 0}
+  _overWorldCenter: {x: 31.5, y: 0}
   _treeInteractRange: {x: 30, y: 33}
   _initialRainRange: {x: 0, y: 16, z: 64}
   _waterCostMultiplier: 0.2
@@ -4213,6 +4289,27 @@ MonoBehaviour:
       WaterConsumption: 1
       DeathCounter: 2
       _homeX: 20
+  _weatherSimulator:
+    _defaultCloudSize: {x: 8, y: 2}
+    _cloudLayer:
+      serializedVersion: 2
+      m_Bits: 256
+    _currentMaxCloud: 1.5
+    _maxCloudOverTime: 0.0016666667
+    _maxGenerateProp: 0.5
+    _generationCD: 90
+    _minCloudY: 8
+    _minCloudScale: 0.75
+    _maxCloudScale: 1.5
+    _generationPostionExpand: {x: 10, y: 12}
+    _minRainDuration: 120
+    _maxRainDuration: 360
+    _minRainDensity: 1.25
+    _maxRainDensity: 1.5
+    _initialCloudPosition: {x: 31.5, y: 8}
+    _initialCloudScale: 1
+    _initialCloudDuration: 360
+    _initialCloudDensity: 1.25
 --- !u!4 &2089717499
 Transform:
   m_ObjectHideFlags: 0

@@ -2,6 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public class VillagerObjectPool : ObjectPool<VillagerController>
+{
+    [SerializeField]
+    private float _defaultY = -3.5f;
+
+    protected override VillagerController OnCreate(VillagerController newOjb)
+    {
+        newOjb.transform.position = new Vector3(0, _defaultY, 0);
+
+        return base.OnCreate(newOjb);
+    }
+
+    protected override VillagerController OnGet(VillagerController obj)
+    {
+        obj.Revive();
+
+        return base.OnGet(obj);
+    }
+}
+
+
+/*
 public class VillagerObjectPool : PassiveSingleton<VillagerObjectPool>
 {
     private List<VillagerController> _villagerPool;
@@ -59,3 +82,4 @@ public class VillagerObjectPool : PassiveSingleton<VillagerObjectPool>
         _villagerPool.Add(villager);
     }
 }
+*/

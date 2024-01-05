@@ -40,6 +40,7 @@ public class StructureTileManager : PassiveSingleton<StructureTileManager>
     public bool IsInScreen(Vector2 view) => view.x >= 0 && view.x <= 1 && view.y >= 0 && view.y <= 1;
 
     public Vector3Int WorldToCell(Vector2 pos) => _structureTilemap.WorldToCell(pos);
+    public Vector3 CellToWorld(Vector3Int pos) => _structureTilemap.GetCellCenterWorld(pos);
 
     public Vector3 GetCellCostPos(Vector3Int cellPos) =>
         Camera.main.WorldToScreenPoint(_structureTilemap.GetCellCenterWorld(cellPos) + Vector3.up * 0.5f);
