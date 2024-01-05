@@ -25,6 +25,12 @@ public class EditController : MonoBehaviour
     [SerializeField]
     private Tile _highlightTile;
 
+    [SerializeField]
+    private Tilemap _ghostTilemap;
+
+    [SerializeField]
+    private RuleTile _ghostTile;
+
     [Header("Test")]
     [SerializeField]
     private float _amountToTest;
@@ -132,12 +138,22 @@ public class EditController : MonoBehaviour
     private void EnterNewCell(Vector3Int cellPos)
     {
         _highlightTileMap.SetTile(_currentCellPos, null);
+        if (_structure.ValidPosition(_currentCellPos.x, _currentCellPos.y)
+            && !_structure.HasBlock(_currentCellPos.x, _currentCellPos.y))
+        {
+            _ghostTilemap.SetTile(_currentCellPos, null);
+        }
+
         _currentCellPos = cellPos;
 
         // highlight current tile if valid
         if (StructureTileManager.Instance.IsValidPosition(_currentPos))
         {
             _highlightTileMap.SetTile(_currentCellPos, _highlightTile);
+            if (_structure.CanGrow(_currentCellPos.x, _currentCellPos.y))
+            {
+                _ghostTilemap.SetTile(_currentCellPos, _ghostTile);
+            }
         }
 
         // only update when mouse pressed and at valid position
@@ -196,6 +212,7 @@ public class EditController : MonoBehaviour
 
         //_tilemap.SetTile(cellPos, _tileToAdd);
         _structure.SetBlock(cellPos.x, cellPos.y);
+        _ghostTilemap.SetTile(cellPos, _ghostTile);
 
         var pos = StructureTileManager.Instance.CellToWorld(cellPos);
         SimulationManager.Instance.TreeBound = new Vector3(pos.x, pos.y, pos.x);

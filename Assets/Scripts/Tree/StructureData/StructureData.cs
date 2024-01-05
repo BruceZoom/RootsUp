@@ -19,7 +19,9 @@ public class StructureData
     // buffered value of water storage
     private float _waterStorage = -1;
 
-    public bool HasBlock(int x, int y) => _rows[y].HasBlock(x);
+    public bool ValidPosition(int x, int y) => 0 <= y && y < _yLength && 0 <= x && x < _xLength;
+
+    public bool HasBlock(int x, int y) => ValidPosition(x, y) && _rows[y].HasBlock(x);
     public bool CanGrow(int x, int y) => 0 <= y && y < _yLength && 0 <= x && x < _xLength && (
                                             // at least one adjacent block
                                             (0 < y && _rows[y - 1].HasBlock(x)) ||
